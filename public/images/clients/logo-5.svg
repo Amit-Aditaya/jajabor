@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 130" fill="none">
+  <ellipse cx="100" cy="60" rx="72" ry="34" stroke="#a3a3a3" stroke-width="2.5" fill="none"/>
+  <ellipse cx="100" cy="60" rx="64" ry="27" stroke="#a3a3a3" stroke-width="1" fill="none"/>
+  <g fill="#a3a3a3" font-family="Georgia, serif">
+    <text x="100" y="52" text-anchor="middle" font-size="9" letter-spacing="4" font-family="Helvetica, Arial, sans-serif">THE</text>
+    <text x="100" y="72" text-anchor="middle" font-size="20" font-weight="bold" letter-spacing="4">HOSOREN</text>
+    <text x="100" y="112" text-anchor="middle" font-size="8" letter-spacing="4" font-family="Helvetica, Arial, sans-serif">MANUFACTURING · 1991</text>
+  </g>
+</svg>

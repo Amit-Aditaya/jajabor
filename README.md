@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jajabor
 
-## Getting Started
+Static one-page website for **Jajabor**, built with Next.js (App Router) and Tailwind CSS, based on the mockups in [Jajabor-mockup/](Jajabor-mockup/).
 
-First, run the development server:
+## Sections
+
+- **Hero** — full-screen black hero with a B&W portrait, hamburger menu, centered signature logo and account/search/bag icons
+- **Portfolio** — filterable masonry grid (All / Design / Development / Photography / Product)
+- **Clients** — "Happy Clients" logo grid with divider lines
+- **Contact** — "Let's Work Together" form with underline-style inputs (front-end only for now)
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) 16 (App Router, `output: "export"` — fully static site)
+- React 19
+- Tailwind CSS 4
+- TypeScript
+
+## Getting started
+
+### Prerequisites
+
+- Node.js **20.9+** (Node 22 recommended)
+- npm (comes with Node)
+
+### Run locally
 
 ```bash
+git clone <repo-url>
+cd Jajabor
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser. The page hot-reloads as you edit files.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The site is configured with `output: "export"`, so a build produces a fully static site in `out/` — no Node server needed to host it:
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+Deploy the `out/` folder to any static host (nginx, GitHub Pages, S3, Netlify, etc.).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Run with Docker
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+No Node.js required — only [Docker](https://docs.docker.com/get-docker/):
 
-## Deploy on Vercel
+```bash
+docker compose up --build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Then open [http://localhost:3000](http://localhost:3000).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Or without Compose:
+
+```bash
+docker build -t jajabor .
+docker run -p 3000:80 jajabor
+```
+
+The image is a two-stage build: Node 22 builds the static export, then nginx serves it (see [Dockerfile](Dockerfile) and [nginx.conf](nginx.conf)). Since the site is baked at build time, any future `NEXT_PUBLIC_*` env vars must be provided during `docker build`, not `docker run`.
+
+## Project structure
+
+```
+src/
+  app/            # App Router entry: layout, page, global styles, favicon
+  components/     # Hero, Portfolio, Clients, Contact, Header, Footer
+public/
+  images/         # Hero, portfolio, and client-logo assets
+Jajabor-mockup/   # Design mockups the site is based on
+```
+
+## Scripts
+
+| Command         | What it does                             |
+| --------------- | ---------------------------------------- |
+| `npm run dev`   | Start the dev server on `localhost:3000` |
+| `npm run build` | Build the static site into `out/`        |
+| `npm run lint`  | Run ESLint                               |
+
+## Placeholder assets
+
+All imagery is placeholder content, meant to be swapped later:
+
+- `public/images/hero.jpg` and `public/images/portfolio/*.jpg` — free photos from Unsplash
+- `public/images/clients/logo-*.svg` — hand-made Logoipsum-style placeholder logos
+- Logo — the "Jajabor" wordmark is rendered in the Mr Dafoe script font (via `next/font`)
+- Favicon — `src/app/icon.svg` ("J" monogram)

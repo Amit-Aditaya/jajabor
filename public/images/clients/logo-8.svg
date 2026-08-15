@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 130" fill="none">
+  <path d="M84 34 L88 24 L96 32 L100 20 L104 32 L112 24 L116 34 L116 38 L84 38 Z" fill="#a3a3a3"/>
+  <g fill="#a3a3a3" font-family="Georgia, serif">
+    <text x="100" y="66" text-anchor="middle" font-size="19" font-weight="bold" letter-spacing="3">SHOPNAME</text>
+    <text x="100" y="88" text-anchor="middle" font-size="16" font-style="italic">authentic</text>
+    <text x="100" y="110" text-anchor="middle" font-size="8" letter-spacing="4" font-family="Helvetica, Arial, sans-serif">— EST. 1991 —</text>
+  </g>
+</svg>

@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+.git
+.gitignore
+*.md
+!AGENTS.md
+!CLAUDE.md
+Jajabor-mockup
+Dockerfile
+docker-compose.yml
+.dockerignore
+.env*

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 130" fill="none">
+  <g fill="#a3a3a3">
+    <circle cx="86" cy="30" r="7"/>
+    <circle cx="114" cy="30" r="7"/>
+    <circle cx="100" cy="42" r="18"/>
+    <circle cx="93" cy="38" r="2.5" fill="#ffffff"/>
+    <circle cx="107" cy="38" r="2.5" fill="#ffffff"/>
+    <path d="M96 48 C98 50 102 50 104 48" stroke="#ffffff" stroke-width="1.5" fill="none"/>
+    <text x="100" y="88" text-anchor="middle" font-size="22" font-weight="bold" letter-spacing="3" font-family="Helvetica, Arial, sans-serif">BEARBRAND</text>
+    <text x="100" y="106" text-anchor="middle" font-size="8" letter-spacing="4" font-family="Helvetica, Arial, sans-serif">SUPERDESIGN</text>
+  </g>
+</svg>
