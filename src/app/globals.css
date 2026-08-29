@@ -14,3 +14,49 @@ body {
   color: #171717;
   font-family: var(--font-jost), Helvetica, Arial, sans-serif;
 }
+
+.clients-carousel {
+  --client-gap: 0.75rem;
+  --client-visible: 1.45;
+  container-type: inline-size;
+  touch-action: pan-y;
+}
+
+.clients-carousel.cursor-grabbing {
+  cursor: grabbing;
+}
+
+.clients-carousel-track {
+  gap: var(--client-gap);
+}
+
+.clients-carousel-card {
+  width: calc(
+    (100cqi - var(--client-gap) * (var(--client-visible) - 1)) /
+      var(--client-visible)
+  );
+}
+
+@media (min-width: 640px) {
+  .clients-carousel {
+    --client-visible: 2.5;
+  }
+}
+
+@media (min-width: 768px) {
+  .clients-carousel {
+    --client-visible: 3.5;
+  }
+}
+
+@media (min-width: 1024px) {
+  .clients-carousel {
+    --client-visible: 4.5;
+  }
+}
+
+@media (min-width: 1280px) {
+  .clients-carousel {
+    --client-visible: 5.5;
+  }
+}
