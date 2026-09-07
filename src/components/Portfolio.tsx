@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import ArchitecturalGrid from "@/components/ArchitecturalGrid";
 
 const mediaTabs = ["Images", "Videos"] as const;
 type MediaTab = (typeof mediaTabs)[number];
@@ -232,7 +233,9 @@ export default function Portfolio() {
               ))}
             </div>
 
-            {visible.length > 0 ? (
+            {activeCategory === "Architectural" ? (
+              <ArchitecturalGrid />
+            ) : visible.length > 0 ? (
               <div className="mt-16 columns-1 gap-6 sm:columns-2 lg:columns-3">
                 {visible.map((item) => (
                   <figure key={item.src} className="group relative mb-6 break-inside-avoid overflow-hidden">
