@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import ArchitecturalGrid from "@/components/ArchitecturalGrid";
+import FashionGrid from "@/components/FashionGrid";
 
 const mediaTabs = ["Images", "Videos"] as const;
 type MediaTab = (typeof mediaTabs)[number];
@@ -235,6 +236,8 @@ export default function Portfolio() {
 
             {activeCategory === "Architectural" ? (
               <ArchitecturalGrid />
+            ) : activeCategory === "Fashion" ? (
+              <FashionGrid />
             ) : visible.length > 0 ? (
               <div className="mt-16 columns-1 gap-6 sm:columns-2 lg:columns-3">
                 {visible.map((item) => (
