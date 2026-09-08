@@ -7,6 +7,8 @@ import FashionGrid from "@/components/FashionGrid";
 import FoodGrid from "@/components/FoodGrid";
 import ProductGrid from "@/components/ProductGrid";
 import SportsGrid from "@/components/SportsGrid";
+import StreetGrid from "@/components/StreetGrid";
+import TravelGrid from "@/components/TravelGrid";
 
 const mediaTabs = ["Images", "Videos"] as const;
 type MediaTab = (typeof mediaTabs)[number];
@@ -247,6 +249,10 @@ export default function Portfolio() {
               <ProductGrid />
             ) : activeCategory === "Sports" ? (
               <SportsGrid />
+            ) : activeCategory === "Street" ? (
+              <StreetGrid />
+            ) : activeCategory === "Travel and Nature" ? (
+              <TravelGrid />
             ) : visible.length > 0 ? (
               <div className="mt-16 columns-1 gap-6 sm:columns-2 lg:columns-3">
                 {visible.map((item) => (
