@@ -9,6 +9,7 @@ import ProductGrid from "@/components/ProductGrid";
 import SportsGrid from "@/components/SportsGrid";
 import StreetGrid from "@/components/StreetGrid";
 import TravelGrid from "@/components/TravelGrid";
+import AllGrid from "@/components/AllGrid";
 
 const mediaTabs = ["Images", "Videos"] as const;
 type MediaTab = (typeof mediaTabs)[number];
@@ -239,7 +240,9 @@ export default function Portfolio() {
               ))}
             </div>
 
-            {activeCategory === "Architectural" ? (
+            {activeCategory === "All" ? (
+              <AllGrid />
+            ) : activeCategory === "Architectural" ? (
               <ArchitecturalGrid />
             ) : activeCategory === "Fashion" ? (
               <FashionGrid />
