@@ -5,23 +5,23 @@ import { useLayoutEffect, useRef } from "react";
 
 const clients = [
   { src: "/images/client_logos/1. Studio 7.png", alt: "Studio 7" },
+  { src: "/images/client_logos/9. Moire Studio.png", alt: "Moire Studio" },
   { src: "/images/client_logos/2. Pull it Off.png", alt: "Pull it Off" },
+  { src: "/images/client_logos/10. Kinky Cafe.png", alt: "Kinky Cafe" },
   { src: "/images/client_logos/3. Izaan.png", alt: "Izaan" },
+  { src: "/images/client_logos/11. DOUR.png", alt: "DOUR" },
   { src: "/images/client_logos/4. Final Third Soccer.png", alt: "Final Third Soccer" },
+  { src: "/images/client_logos/12. BANAi.png", alt: "BANAi" },
   {
     src: "/images/client_logos/5. Next Level Sports Management.png",
     alt: "Next Level Sports Management",
   },
-  { src: "/images/client_logos/6. Bangladesh Drip.png", alt: "Bangladesh Drip" },
-  { src: "/images/client_logos/7. Central Fitness.png", alt: "Central Fitness" },
-  { src: "/images/client_logos/8. IHSB.png", alt: "IHSB" },
-  { src: "/images/client_logos/9. Moire Studio.png", alt: "Moire Studio" },
-  { src: "/images/client_logos/10. Kinky Cafe.png", alt: "Kinky Cafe" },
-  { src: "/images/client_logos/11. DOUR.png", alt: "DOUR" },
-  { src: "/images/client_logos/12. BANAi.png", alt: "BANAi" },
   { src: "/images/client_logos/13. Ethereal.png", alt: "Ethereal" },
+  { src: "/images/client_logos/6. Bangladesh Drip.png", alt: "Bangladesh Drip" },
   { src: "/images/client_logos/14. The Sugarist.png", alt: "The Sugarist" },
+  { src: "/images/client_logos/7. Central Fitness.png", alt: "Central Fitness" },
   { src: "/images/client_logos/15. Outliers.png", alt: "Outliers" },
+  { src: "/images/client_logos/8. IHSB.png", alt: "IHSB" },
   { src: "/images/client_logos/16. Jithbo.png", alt: "Jithbo" },
 ];
 
@@ -214,7 +214,7 @@ export default function Clients() {
           {slides.map((client, index) => (
             <div
               key={`${client.src}-${index}`}
-              className="clients-carousel-card flex aspect-square shrink-0 items-center justify-center bg-[#f5f5f5]"
+              className="clients-carousel-card flex aspect-square shrink-0 items-center justify-center"
             >
               <Image
                 src={client.src}
