@@ -1,21 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { videos, type PortfolioVideo } from "@/data/videos";
-
-function isHoverDevice() {
-  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-}
 
 export default function VideoGrid() {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const players = useRef<Record<string, HTMLVideoElement | null>>({});
-  const stopTimers = useRef<Record<string, number>>({});
+  const fsPlayer = useRef<HTMLVideoElement | null>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [fullscreenId, setFullscreenId] = useState<string | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [fullscreen, setFullscreen] = useState<PortfolioVideo | null>(null);
+  const resumeAt = useRef(0);
+  const openingFs = useRef(false);
+  const closeRef = useRef<() => void>(() => {});
 
   const updateScrollState = useCallback(() => {
     const root = scrollerRef.current;
@@ -33,25 +32,41 @@ export default function VideoGrid() {
     root.addEventListener("scroll", updateScrollState, { passive: true });
     window.addEventListener("resize", updateScrollState);
 
-    const onFullscreen = () => {
-      const fs =
-        document.fullscreenElement ??
-        (document as Document & { webkitFullscreenElement?: Element }).webkitFullscreenElement ??
-        null;
-      const id =
-        videos.find((video) => players.current[video.id] === fs)?.id ?? null;
-      setFullscreenId(id);
-    };
-    document.addEventListener("fullscreenchange", onFullscreen);
-    document.addEventListener("webkitfullscreenchange", onFullscreen);
-
     return () => {
       root.removeEventListener("scroll", updateScrollState);
       window.removeEventListener("resize", updateScrollState);
-      document.removeEventListener("fullscreenchange", onFullscreen);
-      document.removeEventListener("webkitfullscreenchange", onFullscreen);
     };
   }, [updateScrollState]);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+
+    const el = fsPlayer.current;
+    if (el) {
+      el.src = fullscreen.src;
+      const start = () => {
+        el.currentTime = resumeAt.current;
+        el.muted = false;
+        void el.play();
+      };
+      if (el.readyState >= 1) start();
+      else el.addEventListener("loadedmetadata", start, { once: true });
+    }
+
+    openingFs.current = false;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeRef.current();
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [fullscreen]);
 
   const scrollByCard = (direction: 1 | -1) => {
     const root = scrollerRef.current;
@@ -63,48 +78,56 @@ export default function VideoGrid() {
     root.scrollBy({ left: direction * (card.offsetWidth + gap), behavior: "smooth" });
   };
 
-  const pauseOthers = (id: string) => {
-    for (const [otherId, other] of Object.entries(players.current)) {
-      if (otherId !== id) other?.pause();
-    }
-  };
-
-  const start = (video: PortfolioVideo) => {
-    const el = players.current[video.id];
-    if (!el) return;
-
-    const pending = stopTimers.current[video.id];
-    if (pending) {
-      window.clearTimeout(pending);
-      delete stopTimers.current[video.id];
-    }
-
-    pauseOthers(video.id);
+  const ensureSrc = (el: HTMLVideoElement, video: PortfolioVideo) => {
     if (el.getAttribute("src") !== video.src) {
       el.src = video.src;
     }
+  };
+
+  const playCard = (video: PortfolioVideo) => {
+    const el = players.current[video.id];
+    if (!el) return;
+
+    for (const [id, other] of Object.entries(players.current)) {
+      if (id !== video.id) other?.pause();
+    }
+
+    ensureSrc(el, video);
     el.muted = true;
     el.loop = true;
     void el.play();
-    setActiveId(video.id);
+    setPlayingId(video.id);
   };
 
-  const isFullscreen = (el: HTMLVideoElement) =>
-    document.fullscreenElement === el ||
-    (document as Document & { webkitFullscreenElement?: Element }).webkitFullscreenElement === el;
-
-  const stop = (video: PortfolioVideo) => {
-    const existing = stopTimers.current[video.id];
-    if (existing) window.clearTimeout(existing);
-
-    stopTimers.current[video.id] = window.setTimeout(() => {
-      const el = players.current[video.id];
-      delete stopTimers.current[video.id];
-      if (!el || isFullscreen(el)) return;
-      el.pause();
-      setActiveId((current) => (current === video.id ? null : current));
-    }, 250);
+  const pauseCard = (video: PortfolioVideo) => {
+    if (openingFs.current || fullscreen?.id === video.id) return;
+    const el = players.current[video.id];
+    el?.pause();
+    setPlayingId((current) => (current === video.id ? null : current));
   };
+
+  const openFullscreen = (video: PortfolioVideo) => {
+    openingFs.current = true;
+    resumeAt.current = players.current[video.id]?.currentTime ?? 0;
+    players.current[video.id]?.pause();
+    setFullscreen(video);
+  };
+
+  const closeFullscreen = () => {
+    const time = fsPlayer.current?.currentTime ?? 0;
+    const id = fullscreen?.id;
+    fsPlayer.current?.pause();
+    setFullscreen(null);
+
+    if (!id) return;
+    const card = players.current[id];
+    if (!card) return;
+    card.currentTime = time;
+    card.muted = true;
+    void card.play();
+    setPlayingId(id);
+  };
+  closeRef.current = closeFullscreen;
 
   return (
     <div className="relative mt-16">
@@ -125,45 +148,34 @@ export default function VideoGrid() {
         }}
       >
         {videos.map((video) => {
-          const active = activeId === video.id || fullscreenId === video.id;
+          const playing = playingId === video.id;
           const fit = video.landscape ? "object-contain bg-black" : "object-cover";
 
           return (
             <article
               key={video.id}
               className="group relative aspect-[9/16] w-full shrink-0 snap-start overflow-hidden bg-neutral-900 sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
-              onMouseEnter={() => {
-                if (isHoverDevice()) start(video);
-              }}
-              onMouseLeave={() => {
-                if (isHoverDevice()) stop(video);
-              }}
+              onMouseEnter={() => playCard(video)}
+              onMouseLeave={() => pauseCard(video)}
+              onClick={() => playCard(video)}
             >
               <video
                 ref={(el) => {
                   players.current[video.id] = el;
                 }}
-                className={`portfolio-video absolute inset-0 h-full w-full ${fit}`}
+                className={`absolute inset-0 h-full w-full ${fit}`}
                 poster={video.poster}
                 muted
                 loop
                 playsInline
                 preload="none"
-                controls={active}
-                onEnded={() => {
-                  if (fullscreenId !== video.id) setActiveId(null);
-                }}
+                controlsList="nofullscreen nodownload noremoteplayback"
+                disablePictureInPicture
               />
-              <button
-                type="button"
-                onClick={() => {
-                  if (isHoverDevice()) return;
-                  if (active) stop(video);
-                  else start(video);
-                }}
-                aria-label={`Play ${video.title}`}
-                className={`absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/25 transition-opacity duration-300 ${
-                  active ? "pointer-events-none opacity-0" : "cursor-pointer"
+
+              <div
+                className={`pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-black/25 transition-opacity duration-300 ${
+                  playing ? "opacity-0" : "opacity-100"
                 }`}
               >
                 <Image
@@ -171,20 +183,37 @@ export default function VideoGrid() {
                   alt=""
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className={`${fit} -z-10 opacity-80 transition-transform duration-500 group-hover:scale-105`}
+                  className={`${fit} -z-10 opacity-80`}
                 />
                 <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/90 bg-black/30 backdrop-blur-sm">
-                  <svg
-                    viewBox="0 0 24 24"
-                    aria-hidden
-                    className="ml-1 h-7 w-7 fill-white"
-                  >
+                  <svg viewBox="0 0 24 24" aria-hidden className="ml-1 h-7 w-7 fill-white">
                     <path d="M8 5.14v13.72L19.5 12 8 5.14Z" />
                   </svg>
                 </span>
                 <span className="text-sm uppercase tracking-[0.3em] text-white">
                   {video.title}
                 </span>
+              </div>
+
+              <button
+                type="button"
+                aria-label={`Fullscreen ${video.title}`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  playCard(video);
+                  openFullscreen(video);
+                }}
+                className="absolute right-3 bottom-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm hover:bg-black/75"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                  className="h-5 w-5 fill-none stroke-current stroke-[1.8]"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
+                </svg>
               </button>
             </article>
           );
@@ -227,6 +256,45 @@ export default function VideoGrid() {
             <path d="m9 5 7 7-7 7" />
           </svg>
         </button>
+      )}
+
+      {fullscreen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+          role="dialog"
+          aria-modal="true"
+          aria-label={fullscreen.title}
+        >
+          <video
+            ref={fsPlayer}
+            className={
+              fullscreen.landscape
+                ? "max-h-[100dvh] max-w-[100dvw] object-contain"
+                : "h-[100dvh] w-auto max-w-[100dvw] object-contain"
+            }
+            style={fullscreen.landscape ? { aspectRatio: "16 / 9" } : { aspectRatio: "9 / 16" }}
+            controls
+            playsInline
+            autoPlay
+            controlsList="nofullscreen nodownload noremoteplayback"
+            disablePictureInPicture
+          />
+          <button
+            type="button"
+            aria-label="Exit fullscreen"
+            onClick={closeFullscreen}
+            className="absolute top-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden
+              className="h-6 w-6 fill-none stroke-current stroke-[1.8]"
+              strokeLinecap="round"
+            >
+              <path d="M6 6 18 18M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
       )}
     </div>
   );
