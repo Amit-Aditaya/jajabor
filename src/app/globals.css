@@ -60,3 +60,13 @@ body {
     --client-visible: 5.5;
   }
 }
+
+.portfolio-video:fullscreen,
+.portfolio-video:-webkit-full-screen {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain !important;
+  background: #000;
+}

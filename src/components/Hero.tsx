@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <section id="home" className="relative min-h-screen overflow-hidden bg-black">
       <Image
-        src="/images/Hero_Image_Noir.png"
+        src="/images/Hero_Image_Noir.jpg"
         alt="Black and white architectural noir"
         fill
         priority
