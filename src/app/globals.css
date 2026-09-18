@@ -2,7 +2,7 @@
 
 @theme inline {
   --font-sans: var(--font-jost);
-  --font-script: var(--font-script);
+  --font-script: var(--font-dafoe);
 }
 
 html {

@@ -8,7 +8,7 @@ const jost = Jost({
 });
 
 const mrDafoe = Mr_Dafoe({
-  variable: "--font-script",
+  variable: "--font-dafoe",
   weight: "400",
   subsets: ["latin"],
 });
