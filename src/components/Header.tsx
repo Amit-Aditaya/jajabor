@@ -34,32 +34,27 @@ export default function Header() {
     };
   }, []);
 
-  // Ease-out cubic — settles into grey with a cinematic curve
+  // Ease-out cubic — glass settles in with a cinematic curve
   const eased = 1 - (1 - navProgress) ** 3;
-  // Switch to light marks once the backdrop is solid enough
-  const onScrolled = eased > 0.45;
+  // Switch to light marks once the frost is dark enough for contrast
+  const onScrolled = eased > 0.42;
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      {/* Scroll-linked backdrop: frosted glass → aesthetic grey */}
+      {/* Scroll-linked frosted glass */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
-          opacity: eased,
           background: `linear-gradient(
-            to bottom,
-            rgba(72, 72, 76, ${0.78 + eased * 0.22}) 0%,
-            rgba(52, 52, 56, ${0.65 + eased * 0.35}) 100%
+            180deg,
+            rgba(36, 36, 40, ${0.58 * eased}) 0%,
+            rgba(18, 18, 20, ${0.66 * eased}) 100%
           )`,
-          backdropFilter: `blur(${eased * 16}px) saturate(${100 + eased * 20}%)`,
-          WebkitBackdropFilter: `blur(${eased * 16}px) saturate(${100 + eased * 20}%)`,
+          backdropFilter: `blur(${eased * 24}px) saturate(${100 + eased * 60}%)`,
+          WebkitBackdropFilter: `blur(${eased * 24}px) saturate(${100 + eased * 60}%)`,
           boxShadow:
-            eased > 0.02
-              ? `inset 0 -1px 0 rgba(255,255,255,${0.1 * eased}), 0 12px 40px rgba(30,30,34,${0.25 * eased})`
-              : "none",
-          maskImage: `linear-gradient(to bottom, black 0%, black ${70 + eased * 30}%, transparent 100%)`,
-          WebkitMaskImage: `linear-gradient(to bottom, black 0%, black ${70 + eased * 30}%, transparent 100%)`,
+            eased > 0.02 ? `0 8px 28px rgba(0,0,0,${0.18 * eased})` : "none",
         }}
       />
       <div
@@ -79,7 +74,7 @@ export default function Header() {
           <span className="block h-[2.5px] w-7 rounded-full bg-current" />
         </button>
 
-        {/* Logo — black at rest, white over scrolled grey bar */}
+        {/* Logo — black at rest, white over the frosted glass bar */}
         <a href="#home" className="absolute left-1/2 -translate-x-1/2">
           <span className="relative block h-14 w-14 sm:h-[4.25rem] sm:w-[4.25rem]">
             <Image
