@@ -16,18 +16,38 @@ body {
 }
 
 .clients-carousel {
-  --client-gap: 0.75rem;
-  --client-visible: 1.45;
+  --client-gap: 0.2rem;
+  --client-visible: 1.8;
+  --clients-marquee-duration: 52s;
+  --clients-mask: linear-gradient(
+    to right,
+    transparent,
+    #000 2.5rem,
+    #000 calc(100% - 2.5rem),
+    transparent
+  );
   container-type: inline-size;
-  touch-action: pan-y;
-}
-
-.clients-carousel.cursor-grabbing {
-  cursor: grabbing;
+  mask-image: var(--clients-mask);
+  -webkit-mask-image: var(--clients-mask);
 }
 
 .clients-carousel-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  backface-visibility: hidden;
+  animation: clients-marquee var(--clients-marquee-duration) linear infinite;
+}
+
+.clients-carousel:hover .clients-carousel-track,
+.clients-carousel:focus-within .clients-carousel-track {
+  animation-play-state: paused;
+}
+
+.clients-carousel-group {
+  display: flex;
   gap: var(--client-gap);
+  padding-inline-end: var(--client-gap);
 }
 
 .clients-carousel-card {
@@ -37,27 +57,58 @@ body {
   );
 }
 
+@keyframes clients-marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clients-carousel {
+    mask-image: none;
+    overflow: visible;
+  }
+
+  .clients-carousel-track {
+    animation: none;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .clients-carousel-group {
+    max-width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-inline-end: 0;
+  }
+
+  .clients-carousel-group[aria-hidden="true"] {
+    display: none;
+  }
+}
+
 @media (min-width: 640px) {
   .clients-carousel {
-    --client-visible: 2.5;
+    --client-visible: 3.2;
   }
 }
 
 @media (min-width: 768px) {
   .clients-carousel {
-    --client-visible: 3.5;
+    --client-visible: 4.4;
   }
 }
 
 @media (min-width: 1024px) {
   .clients-carousel {
-    --client-visible: 4.5;
+    --client-visible: 5.6;
   }
 }
 
 @media (min-width: 1280px) {
   .clients-carousel {
-    --client-visible: 5.5;
+    --client-visible: 6.8;
   }
 }
 
