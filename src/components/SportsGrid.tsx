@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useRef, useState } from "react";
+import PortfolioImage from "@/components/PortfolioImage";
 import {
   SPORTS_GRID_HEIGHT,
   SPORTS_GRID_WIDTH,
@@ -47,12 +47,10 @@ export default function SportsGrid() {
                   height: `${(tile.h / SPORTS_GRID_HEIGHT) * 100}%`,
                 }}
               >
-                <Image
+                <PortfolioImage
                   src={tile.src}
-                  alt=""
-                  fill
                   sizes={span ? "(max-width: 1024px) 100vw, 66vw" : "(max-width: 1024px) 50vw, 33vw"}
-                  className="object-cover"
+                  loading={expanded ? "lazy" : "eager"}
                 />
               </figure>
             );

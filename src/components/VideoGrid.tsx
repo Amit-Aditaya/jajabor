@@ -3,8 +3,9 @@
 import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { videos, type PortfolioVideo } from "@/data/videos";
+import { optimizedSrc } from "@/lib/media-src";
 
-export default function VideoGrid() {
+export default function VideoGrid({ active = true }: { active?: boolean }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const players = useRef<Record<string, HTMLVideoElement | null>>({});
   const fsPlayer = useRef<HTMLVideoElement | null>(null);
@@ -26,7 +27,7 @@ export default function VideoGrid() {
 
   useLayoutEffect(() => {
     const root = scrollerRef.current;
-    if (!root) return;
+    if (!root || !active) return;
 
     updateScrollState();
     root.addEventListener("scroll", updateScrollState, { passive: true });
@@ -36,7 +37,13 @@ export default function VideoGrid() {
       root.removeEventListener("scroll", updateScrollState);
       window.removeEventListener("resize", updateScrollState);
     };
-  }, [updateScrollState]);
+  }, [active, updateScrollState]);
+
+  useEffect(() => {
+    if (active) return;
+    for (const el of Object.values(players.current)) el?.pause();
+    setPlayingId(null);
+  }, [active]);
 
   useEffect(() => {
     if (!fullscreen) return;
@@ -147,9 +154,10 @@ export default function VideoGrid() {
           }
         }}
       >
-        {videos.map((video) => {
+        {videos.map((video, index) => {
           const playing = playingId === video.id;
           const fit = video.landscape ? "object-contain bg-black" : "object-cover";
+          const poster = optimizedSrc(video.poster);
 
           return (
             <article
@@ -164,11 +172,11 @@ export default function VideoGrid() {
                   players.current[video.id] = el;
                 }}
                 className={`absolute inset-0 h-full w-full ${fit}`}
-                poster={video.poster}
+                poster={poster}
                 muted
                 loop
                 playsInline
-                preload="none"
+                preload={index < 3 ? "metadata" : "none"}
                 controlsList="nofullscreen nodownload noremoteplayback"
                 disablePictureInPicture
               />
@@ -179,10 +187,12 @@ export default function VideoGrid() {
                 }`}
               >
                 <Image
-                  src={video.poster}
+                  src={poster}
                   alt=""
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  loading={index < 3 ? "eager" : "lazy"}
+                  decoding="async"
                   className={`${fit} -z-10 opacity-80`}
                 />
                 <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/90 bg-black/30 backdrop-blur-sm">

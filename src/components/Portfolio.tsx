@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import ArchitecturalGrid from "@/components/ArchitecturalGrid";
 import FashionGrid from "@/components/FashionGrid";
 import FoodGrid from "@/components/FoodGrid";
@@ -11,52 +10,47 @@ import StreetGrid from "@/components/StreetGrid";
 import TravelGrid from "@/components/TravelGrid";
 import AllGrid from "@/components/AllGrid";
 import VideoGrid from "@/components/VideoGrid";
+import {
+  allPreviewSrcs,
+  imageCategories,
+  previewSrcsFor,
+  videoPosterSrcs,
+  type ImageCategory,
+} from "@/data/portfolio-previews";
+import { prefetchImages, prefetchImagesNow } from "@/lib/prefetch-images";
 
 const mediaTabs = ["Images", "Videos"] as const;
 type MediaTab = (typeof mediaTabs)[number];
 
-const imageCategories = [
-  "All",
-  "Architectural",
-  "Fashion",
-  "Food",
-  "Product",
-  "Sports",
-  "Street",
-  "Travel and Nature",
-] as const;
-type ImageCategory = (typeof imageCategories)[number];
-
-type PortfolioItem = {
-  src: string;
-  title: string;
-  category: Exclude<ImageCategory, "All">;
-  ratio: string;
+const imageGrids: Record<ImageCategory, () => ReactNode> = {
+  All: () => <AllGrid />,
+  Architectural: () => <ArchitecturalGrid />,
+  Fashion: () => <FashionGrid />,
+  Food: () => <FoodGrid />,
+  Product: () => <ProductGrid />,
+  Sports: () => <SportsGrid />,
+  Street: () => <StreetGrid />,
+  "Travel and Nature": () => <TravelGrid />,
 };
-
-const items: PortfolioItem[] = [
-  { src: "/images/portfolio/p1.jpg", title: "Minimal Watch", category: "Product", ratio: "aspect-[4/5]" },
-  { src: "/images/portfolio/p4.jpg", title: "Instant Classic", category: "Fashion", ratio: "aspect-[4/3]" },
-  { src: "/images/portfolio/p5.jpg", title: "Studio Space", category: "Architectural", ratio: "aspect-[4/3]" },
-  { src: "/images/portfolio/p3.jpg", title: "Suede Editorial", category: "Fashion", ratio: "aspect-[4/5]" },
-  { src: "/images/portfolio/p2.jpg", title: "Sound Study", category: "Street", ratio: "aspect-[4/3]" },
-  { src: "/images/portfolio/p6.jpg", title: "Lightweight Store", category: "Architectural", ratio: "aspect-square" },
-  { src: "/images/portfolio/p8.jpg", title: "Mono Audio", category: "Product", ratio: "aspect-[4/5]" },
-];
 
 function TabButton({
   active,
   children,
   onClick,
+  onIntent,
 }: {
   active: boolean;
   children: ReactNode;
   onClick: () => void;
+  onIntent?: () => void;
 }) {
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
+      onPointerEnter={onIntent}
+      onFocus={onIntent}
       className={`px-8 py-3 text-lg font-medium transition-colors ${
         active
           ? "bg-neutral-800 text-white"
@@ -69,89 +63,100 @@ function TabButton({
 }
 
 export default function Portfolio() {
+  const sectionRef = useRef<HTMLElement>(null);
   const [media, setMedia] = useState<MediaTab>("Images");
   const [activeCategory, setActiveCategory] = useState<ImageCategory>("All");
+  const [visitedCategories, setVisitedCategories] = useState<Set<ImageCategory>>(
+    () => new Set(["All"]),
+  );
+  const [visitedVideos, setVisitedVideos] = useState(false);
 
-  const visible =
-    activeCategory === "All"
-      ? items
-      : items.filter((item) => item.category === activeCategory);
+  useEffect(() => {
+    const root = sectionRef.current;
+    if (!root) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        prefetchImages([...allPreviewSrcs, ...videoPosterSrcs]);
+        observer.disconnect();
+      },
+      { rootMargin: "400px" },
+    );
+
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, []);
+
+  const showMedia = (tab: MediaTab) => {
+    setMedia(tab);
+    if (tab === "Videos") {
+      setVisitedVideos(true);
+      prefetchImagesNow(videoPosterSrcs);
+    }
+  };
+
+  const showCategory = (category: ImageCategory) => {
+    setActiveCategory(category);
+    setVisitedCategories((current) => {
+      if (current.has(category)) return current;
+      const next = new Set(current);
+      next.add(category);
+      return next;
+    });
+  };
 
   return (
-    <section id="portfolio" className="bg-white py-24">
+    <section ref={sectionRef} id="portfolio" className="bg-white py-24">
       <div className="mx-auto max-w-[1320px] px-6 sm:px-10">
         <h2 className="text-center text-5xl font-semibold text-neutral-400">Portfolio</h2>
         <div className="mx-auto mt-6 h-[3px] w-14 bg-neutral-500" />
 
         <div className="mt-14 flex flex-wrap justify-center gap-4">
           {mediaTabs.map((tab) => (
-            <TabButton key={tab} active={media === tab} onClick={() => setMedia(tab)}>
+            <TabButton
+              key={tab}
+              active={media === tab}
+              onClick={() => showMedia(tab)}
+              onIntent={() => {
+                if (tab === "Videos") prefetchImagesNow(videoPosterSrcs);
+              }}
+            >
               {tab}
             </TabButton>
           ))}
         </div>
 
-        {media === "Images" && (
-          <>
-            <div className="mt-6 flex flex-wrap justify-center gap-4">
-              {imageCategories.map((category) => (
-                <TabButton
-                  key={category}
-                  active={activeCategory === category}
-                  onClick={() => setActiveCategory(category)}
-                >
-                  {category}
-                </TabButton>
-              ))}
-            </div>
+        <div hidden={media !== "Images"} aria-hidden={media !== "Images"}>
+          <div className="mt-6 flex flex-wrap justify-center gap-4">
+            {imageCategories.map((category) => (
+              <TabButton
+                key={category}
+                active={activeCategory === category}
+                onClick={() => showCategory(category)}
+                onIntent={() => prefetchImagesNow(previewSrcsFor(category))}
+              >
+                {category}
+              </TabButton>
+            ))}
+          </div>
 
-            {activeCategory === "All" ? (
-              <AllGrid />
-            ) : activeCategory === "Architectural" ? (
-              <ArchitecturalGrid />
-            ) : activeCategory === "Fashion" ? (
-              <FashionGrid />
-            ) : activeCategory === "Food" ? (
-              <FoodGrid />
-            ) : activeCategory === "Product" ? (
-              <ProductGrid />
-            ) : activeCategory === "Sports" ? (
-              <SportsGrid />
-            ) : activeCategory === "Street" ? (
-              <StreetGrid />
-            ) : activeCategory === "Travel and Nature" ? (
-              <TravelGrid />
-            ) : visible.length > 0 ? (
-              <div className="mt-16 columns-1 gap-6 sm:columns-2 lg:columns-3">
-                {visible.map((item) => (
-                  <figure key={item.src} className="group relative mb-6 break-inside-avoid overflow-hidden">
-                    <div className={`relative w-full ${item.ratio}`}>
-                      <Image
-                        src={item.src}
-                        alt={item.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    <figcaption className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <span className="text-xl font-medium text-white">{item.title}</span>
-                      <span className="text-sm uppercase tracking-[0.25em] text-neutral-300">
-                        {item.category}
-                      </span>
-                    </figcaption>
-                  </figure>
-                ))}
+          {imageCategories.map((category) => {
+            if (!visitedCategories.has(category)) return null;
+            const hidden = activeCategory !== category;
+            return (
+              <div key={category} hidden={hidden} aria-hidden={hidden}>
+                {imageGrids[category]()}
               </div>
-            ) : (
-              <p className="mt-16 text-center text-neutral-400">
-                No images in this category yet.
-              </p>
-            )}
-          </>
-        )}
+            );
+          })}
+        </div>
 
-        {media === "Videos" && <VideoGrid />}
+        {visitedVideos ? (
+          <div hidden={media !== "Videos"} aria-hidden={media !== "Videos"}>
+            <VideoGrid active={media === "Videos"} />
+          </div>
+        ) : null}
       </div>
     </section>
   );
