@@ -53,13 +53,13 @@ function LogoGroup({
 
 export default function Clients() {
   return (
-    <section id="clients" className="bg-white py-24">
+    <section id="clients" className="bg-canvas py-24">
       <div className="mx-auto max-w-[1480px] px-6 sm:px-10">
-        <p className="text-center text-xs uppercase tracking-[0.45em] text-neutral-800">
+        <p className="text-center text-xs tracking-[0.28em] text-ink-muted uppercase">
           Our clients and partners
         </p>
-        <h2 className="mt-6 text-center text-5xl font-normal tracking-wide text-neutral-900 sm:text-6xl">
-          HAPPY CLIENTS
+        <h2 className="type-stroke mt-6 text-center font-sans text-[2.5rem] tracking-[0.16em] text-ink sm:text-[3.125rem]">
+          Happy Clients
         </h2>
       </div>
 

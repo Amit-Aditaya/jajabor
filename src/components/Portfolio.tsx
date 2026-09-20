@@ -51,10 +51,10 @@ function TabButton({
       onClick={onClick}
       onPointerEnter={onIntent}
       onFocus={onIntent}
-      className={`px-8 py-3 text-lg font-medium transition-colors ${
+      className={`px-8 py-3 text-lg transition-colors ${
         active
-          ? "bg-neutral-800 text-white"
-          : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+          ? "bg-charcoal text-cream"
+          : "bg-cream text-ink hover:bg-[#eae6df]"
       }`}
     >
       {children}
@@ -107,10 +107,12 @@ export default function Portfolio() {
   };
 
   return (
-    <section ref={sectionRef} id="portfolio" className="bg-white py-24">
+    <section ref={sectionRef} id="portfolio" className="bg-canvas py-24">
       <div className="mx-auto max-w-[1320px] px-6 sm:px-10">
-        <h2 className="text-center text-5xl font-semibold text-neutral-400">Portfolio</h2>
-        <div className="mx-auto mt-6 h-[3px] w-14 bg-neutral-500" />
+        <h2 className="type-stroke text-center font-sans text-[2.5rem] tracking-[0.16em] text-ink sm:text-[3.125rem]">
+          Portfolio
+        </h2>
+        <div className="mx-auto mt-6 h-px w-14 bg-ink/40" />
 
         <div className="mt-14 flex flex-wrap justify-center gap-4">
           {mediaTabs.map((tab) => (

@@ -50,18 +50,18 @@ export default function Header() {
         style={{
           background: `linear-gradient(
             180deg,
-            rgba(36, 36, 40, ${0.58 * eased}) 0%,
-            rgba(18, 18, 20, ${0.66 * eased}) 100%
+            rgba(61, 58, 55, ${0.58 * eased}) 0%,
+            rgba(61, 58, 55, ${0.72 * eased}) 100%
           )`,
           backdropFilter: `blur(${eased * 24}px) saturate(${100 + eased * 60}%)`,
           WebkitBackdropFilter: `blur(${eased * 24}px) saturate(${100 + eased * 60}%)`,
           boxShadow:
-            eased > 0.02 ? `0 8px 28px rgba(0,0,0,${0.18 * eased})` : "none",
+            eased > 0.02 ? `0 8px 28px rgba(61,58,55,${0.18 * eased})` : "none",
         }}
       />
       <div
         className={`relative mx-auto flex h-16 max-w-[1600px] items-center px-6 transition-colors duration-300 sm:h-[4.5rem] sm:px-10 ${
-          onScrolled ? "text-white" : "text-black"
+          onScrolled ? "text-cream" : "text-ink"
         }`}
       >
         {/* Hamburger */}
@@ -76,7 +76,7 @@ export default function Header() {
           <span className="block h-[2.5px] w-7 rounded-full bg-current" />
         </button>
 
-        {/* Logo — black at rest, white over the frosted glass bar */}
+        {/* Logo — dark at rest, light over the frosted glass bar */}
         <a href="#home" className="absolute left-1/2 -translate-x-1/2">
           <span className="relative block h-14 w-14 sm:h-[4.25rem] sm:w-[4.25rem]">
             <Image
@@ -106,7 +106,7 @@ export default function Header() {
 
       {/* Fullscreen menu overlay */}
       <div
-        className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white transition-opacity duration-300 ${
+        className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-charcoal/95 text-cream transition-opacity duration-300 ${
           menuOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
@@ -114,7 +114,7 @@ export default function Header() {
           type="button"
           aria-label="Close menu"
           onClick={() => setMenuOpen(false)}
-          className="absolute right-8 top-7 text-4xl font-light leading-none"
+          className="absolute right-8 top-7 font-sans text-4xl leading-none"
         >
           &times;
         </button>
@@ -124,7 +124,7 @@ export default function Header() {
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="text-3xl uppercase tracking-[0.3em] text-neutral-300 transition-colors hover:text-white"
+              className="font-sans text-[1.75rem] tracking-[0.18em] text-cream/80 transition-colors hover:text-cream sm:text-[2.2rem]"
             >
               {link.label}
             </a>

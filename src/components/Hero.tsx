@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section id="home" className="relative min-h-screen overflow-hidden bg-black">
+    <section id="home" className="relative min-h-screen overflow-hidden bg-charcoal">
       <Image
         src="/images/3. Hero Image Noir Portrait.jpg"
         alt="Black and white architectural noir"

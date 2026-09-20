@@ -156,13 +156,13 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
       >
         {videos.map((video, index) => {
           const playing = playingId === video.id;
-          const fit = video.landscape ? "object-contain bg-black" : "object-cover";
+          const fit = video.landscape ? "object-contain bg-charcoal" : "object-cover";
           const poster = optimizedSrc(video.poster);
 
           return (
             <article
               key={video.id}
-              className="group relative aspect-[9/16] w-full shrink-0 snap-start overflow-hidden bg-neutral-900 sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
+              className="group relative aspect-[9/16] w-full shrink-0 snap-start overflow-hidden bg-charcoal sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
               onMouseEnter={() => playCard(video)}
               onMouseLeave={() => pauseCard(video)}
               onClick={() => playCard(video)}
@@ -182,7 +182,7 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
               />
 
               <div
-                className={`pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-black/25 transition-opacity duration-300 ${
+                className={`pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-charcoal/25 transition-opacity duration-300 ${
                   playing ? "opacity-0" : "opacity-100"
                 }`}
               >
@@ -195,12 +195,12 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
                   decoding="async"
                   className={`${fit} -z-10 opacity-80`}
                 />
-                <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/90 bg-black/30 backdrop-blur-sm">
-                  <svg viewBox="0 0 24 24" aria-hidden className="ml-1 h-7 w-7 fill-white">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-cream/90 bg-charcoal/30 backdrop-blur-sm">
+                  <svg viewBox="0 0 24 24" aria-hidden className="ml-1 h-7 w-7 fill-cream">
                     <path d="M8 5.14v13.72L19.5 12 8 5.14Z" />
                   </svg>
                 </span>
-                <span className="text-sm uppercase tracking-[0.3em] text-white">
+                <span className="font-sans text-sm tracking-[0.16em] text-cream">
                   {video.title}
                 </span>
               </div>
@@ -213,7 +213,7 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
                   playCard(video);
                   openFullscreen(video);
                 }}
-                className="absolute right-3 bottom-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm hover:bg-black/75"
+                className="absolute right-3 bottom-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/55 text-cream backdrop-blur-sm hover:bg-charcoal/75"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -235,7 +235,7 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
           type="button"
           aria-label="Previous videos"
           onClick={() => scrollByCard(-1)}
-          className="absolute top-1/2 left-3 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-neutral-900 text-white shadow-lg transition-colors hover:bg-neutral-700 sm:left-4"
+          className="absolute top-1/2 left-3 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-charcoal text-cream shadow-lg transition-colors hover:bg-charcoal-soft sm:left-4"
         >
           <svg
             viewBox="0 0 24 24"
@@ -254,7 +254,7 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
           type="button"
           aria-label="More videos"
           onClick={() => scrollByCard(1)}
-          className="absolute top-1/2 right-3 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-neutral-900 text-white shadow-lg transition-colors hover:bg-neutral-700 sm:right-4"
+          className="absolute top-1/2 right-3 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-charcoal text-cream shadow-lg transition-colors hover:bg-charcoal-soft sm:right-4"
         >
           <svg
             viewBox="0 0 24 24"
@@ -270,7 +270,7 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
 
       {fullscreen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal"
           role="dialog"
           aria-modal="true"
           aria-label={fullscreen.title}
@@ -293,7 +293,7 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
             type="button"
             aria-label="Exit fullscreen"
             onClick={closeFullscreen}
-            className="absolute top-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
+            className="absolute top-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-cream/10 text-cream backdrop-blur-sm hover:bg-cream/20"
           >
             <svg
               viewBox="0 0 24 24"

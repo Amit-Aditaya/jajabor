@@ -63,7 +63,7 @@ export default function FashionGrid() {
           type="button"
           aria-expanded={expanded}
           onClick={toggle}
-          className="bg-neutral-100 px-8 py-3 text-lg font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
+          className="bg-cream px-8 py-3 text-lg text-ink transition-colors hover:bg-[#eae6df]"
         >
           {expanded ? "See less" : "See all"}
         </button>

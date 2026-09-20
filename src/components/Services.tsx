@@ -160,18 +160,18 @@ export default function Services() {
   return (
     <section
       id="services"
-      className="relative overflow-hidden bg-[#1d1b19] py-24 text-[#f4f1ec] sm:py-32 lg:py-40"
+      className="relative overflow-hidden bg-charcoal py-24 text-cream sm:py-32 lg:py-40"
     >
       <div className="mx-auto max-w-[1480px] px-6 sm:px-10">
-        <p className="text-xs uppercase tracking-[0.45em] text-neutral-400">
+        <p className="text-xs tracking-[0.28em] text-cream/55 uppercase">
           What we do
         </p>
 
         <h2 className="mt-5">
-          <span className="font-script block text-[4.75rem] leading-[0.85] text-[#f4f1ec] sm:text-[6.75rem]">
+          <span className="font-display block text-[4.75rem] leading-[0.9] italic text-cream sm:text-[6.25rem]">
             Our
           </span>
-          <span className="mt-3 block text-5xl font-normal uppercase tracking-[0.22em] sm:mt-4 sm:text-6xl sm:tracking-[0.28em]">
+          <span className="type-stroke mt-3 block font-sans text-[2.5rem] tracking-[0.16em] sm:mt-4 sm:text-[3.125rem]">
             Services
           </span>
         </h2>
@@ -180,16 +180,16 @@ export default function Services() {
           {ideas.map((idea, index) => (
             <li
               key={idea.title}
-              className={`min-w-0 border-t border-white/15 py-6 sm:py-7 ${
+              className={`min-w-0 border-t border-cream/20 py-6 sm:py-7 ${
                 index === 0 ? "sm:pr-5" : ""
-              } ${index === 1 ? "sm:border-x sm:border-white/15 sm:px-5" : ""} ${
+              } ${index === 1 ? "sm:border-x sm:border-cream/20 sm:px-5" : ""} ${
                 index === 2 ? "sm:pl-5" : ""
               }`}
             >
-              <p className="text-[11px] tracking-[0.35em] text-neutral-500">
+              <p className="text-[11px] tracking-[0.28em] text-cream/45">
                 {idea.n}
               </p>
-              <p className="mt-3 text-[12px] uppercase tracking-[0.16em] text-[#f4f1ec]">
+              <p className="mt-3 font-sans text-[1.05rem] tracking-[0.06em] text-cream">
                 {idea.title}
               </p>
             </li>
@@ -200,18 +200,18 @@ export default function Services() {
           {offerings.map((item, index) => (
             <li
               key={item.title}
-              className={`min-w-0 border-t border-white/15 py-10 sm:py-12 ${
+              className={`min-w-0 border-t border-cream/20 py-10 sm:py-12 ${
                 index === 0 ? "sm:pr-8 lg:pr-6" : "sm:px-8 lg:px-6"
               } ${index === offerings.length - 1 ? "sm:pr-0" : ""}`}
             >
-              <item.icon className="text-[#f4f1ec]" />
-              <p className="mt-8 text-[11px] tracking-[0.35em] text-neutral-500">
+              <item.icon className="text-cream" />
+              <p className="mt-8 text-[11px] tracking-[0.28em] text-cream/45">
                 {item.n}
               </p>
-              <h3 className="mt-4 text-xl uppercase tracking-[0.18em]">
+              <h3 className="mt-4 font-sans text-[1.5625rem] tracking-[0.08em]">
                 {item.title}
               </h3>
-              <p className="mt-5 max-w-[16rem] text-[15px] leading-[1.7] text-neutral-400">
+              <p className="mt-5 max-w-[16rem] text-[15px] leading-[1.7] text-cream/80">
                 {item.copy}
               </p>
             </li>
