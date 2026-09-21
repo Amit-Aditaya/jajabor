@@ -8,14 +8,9 @@ import { optimizedSrc } from "@/lib/media-src";
 export default function VideoGrid({ active = true }: { active?: boolean }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const players = useRef<Record<string, HTMLVideoElement | null>>({});
-  const fsPlayer = useRef<HTMLVideoElement | null>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const [fullscreen, setFullscreen] = useState<PortfolioVideo | null>(null);
-  const resumeAt = useRef(0);
-  const openingFs = useRef(false);
-  const closeRef = useRef<() => void>(() => {});
 
   const updateScrollState = useCallback(() => {
     const root = scrollerRef.current;
@@ -41,39 +36,12 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
 
   useEffect(() => {
     if (active) return;
-    for (const el of Object.values(players.current)) el?.pause();
+    for (const el of Object.values(players.current)) {
+      el?.pause();
+      if (el) el.muted = true;
+    }
     setPlayingId(null);
   }, [active]);
-
-  useEffect(() => {
-    if (!fullscreen) return;
-
-    const el = fsPlayer.current;
-    if (el) {
-      el.src = fullscreen.src;
-      const start = () => {
-        el.currentTime = resumeAt.current;
-        el.muted = false;
-        void el.play();
-      };
-      if (el.readyState >= 1) start();
-      else el.addEventListener("loadedmetadata", start, { once: true });
-    }
-
-    openingFs.current = false;
-
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeRef.current();
-    };
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [fullscreen]);
 
   const scrollByCard = (direction: 1 | -1) => {
     const root = scrollerRef.current;
@@ -96,45 +64,33 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
     if (!el) return;
 
     for (const [id, other] of Object.entries(players.current)) {
-      if (id !== video.id) other?.pause();
+      if (id !== video.id) {
+        other?.pause();
+        if (other) other.muted = true;
+      }
     }
 
     ensureSrc(el, video);
-    el.muted = true;
     el.loop = true;
-    void el.play();
+    el.muted = false;
+    const play = el.play();
+    if (play) {
+      void play.catch(() => {
+        el.muted = true;
+        void el.play();
+      });
+    }
     setPlayingId(video.id);
   };
 
   const pauseCard = (video: PortfolioVideo) => {
-    if (openingFs.current || fullscreen?.id === video.id) return;
     const el = players.current[video.id];
-    el?.pause();
+    if (el) {
+      el.pause();
+      el.muted = true;
+    }
     setPlayingId((current) => (current === video.id ? null : current));
   };
-
-  const openFullscreen = (video: PortfolioVideo) => {
-    openingFs.current = true;
-    resumeAt.current = players.current[video.id]?.currentTime ?? 0;
-    players.current[video.id]?.pause();
-    setFullscreen(video);
-  };
-
-  const closeFullscreen = () => {
-    const time = fsPlayer.current?.currentTime ?? 0;
-    const id = fullscreen?.id;
-    fsPlayer.current?.pause();
-    setFullscreen(null);
-
-    if (!id) return;
-    const card = players.current[id];
-    if (!card) return;
-    card.currentTime = time;
-    card.muted = true;
-    void card.play();
-    setPlayingId(id);
-  };
-  closeRef.current = closeFullscreen;
 
   return (
     <div className="relative mt-16">
@@ -204,27 +160,6 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
                   {video.title}
                 </span>
               </div>
-
-              <button
-                type="button"
-                aria-label={`Fullscreen ${video.title}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  playCard(video);
-                  openFullscreen(video);
-                }}
-                className="absolute right-3 bottom-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/55 text-cream backdrop-blur-sm hover:bg-charcoal/75"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                  className="h-5 w-5 fill-none stroke-current stroke-[1.8]"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
-                </svg>
-              </button>
             </article>
           );
         })}
@@ -266,45 +201,6 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
             <path d="m9 5 7 7-7 7" />
           </svg>
         </button>
-      )}
-
-      {fullscreen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal"
-          role="dialog"
-          aria-modal="true"
-          aria-label={fullscreen.title}
-        >
-          <video
-            ref={fsPlayer}
-            className={
-              fullscreen.landscape
-                ? "max-h-[100dvh] max-w-[100dvw] object-contain"
-                : "h-[100dvh] w-auto max-w-[100dvw] object-contain"
-            }
-            style={fullscreen.landscape ? { aspectRatio: "16 / 9" } : { aspectRatio: "9 / 16" }}
-            controls
-            playsInline
-            autoPlay
-            controlsList="nofullscreen nodownload noremoteplayback"
-            disablePictureInPicture
-          />
-          <button
-            type="button"
-            aria-label="Exit fullscreen"
-            onClick={closeFullscreen}
-            className="absolute top-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-cream/10 text-cream backdrop-blur-sm hover:bg-cream/20"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden
-              className="h-6 w-6 fill-none stroke-current stroke-[1.8]"
-              strokeLinecap="round"
-            >
-              <path d="M6 6 18 18M18 6 6 18" />
-            </svg>
-          </button>
-        </div>
       )}
     </div>
   );
