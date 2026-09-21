@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import PortfolioImage from "@/components/PortfolioImage";
+import { scrollToPortfolioTabs } from "@/lib/scroll-portfolio-tabs";
 import {
   ARCHITECTURAL_GRID_HEIGHT,
   ARCHITECTURAL_GRID_WIDTH,
@@ -12,20 +13,17 @@ import {
 
 export default function ArchitecturalGrid() {
   const [expanded, setExpanded] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
   const tiles = expanded ? architecturalTiles : architecturalPreviewTiles;
   const visibleHeight = expanded ? ARCHITECTURAL_GRID_HEIGHT : ARCHITECTURAL_PREVIEW_HEIGHT;
 
   const toggle = () => {
     const next = !expanded;
     setExpanded(next);
-    if (!next) {
-      rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (!next) scrollToPortfolioTabs();
   };
 
   return (
-    <div ref={rootRef} className="mt-16">
+    <div className="mt-16">
       <div
         className="overflow-hidden"
         style={{ aspectRatio: `${ARCHITECTURAL_GRID_WIDTH} / ${visibleHeight}` }}

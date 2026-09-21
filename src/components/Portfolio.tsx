@@ -18,6 +18,7 @@ import {
   type ImageCategory,
 } from "@/data/portfolio-previews";
 import { prefetchImages, prefetchImagesNow } from "@/lib/prefetch-images";
+import { PORTFOLIO_TABS_ID } from "@/lib/scroll-portfolio-tabs";
 
 const mediaTabs = ["Images", "Videos"] as const;
 type MediaTab = (typeof mediaTabs)[number];
@@ -130,7 +131,10 @@ export default function Portfolio() {
         </h2>
         <div className="mx-auto mt-6 h-px w-14 bg-ink/40" />
 
-        <div className="mt-14 flex flex-wrap justify-center gap-4">
+        <div
+          id={PORTFOLIO_TABS_ID}
+          className="mt-14 flex flex-wrap justify-center gap-4 scroll-mt-20 sm:scroll-mt-24"
+        >
           {mediaTabs.map((tab) => (
             <TabButton
               key={tab}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import PortfolioImage from "@/components/PortfolioImage";
+import { scrollToPortfolioTabs } from "@/lib/scroll-portfolio-tabs";
 import {
   SPORTS_GRID_HEIGHT,
   SPORTS_GRID_WIDTH,
@@ -12,20 +13,17 @@ import {
 
 export default function SportsGrid() {
   const [expanded, setExpanded] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
   const tiles = expanded ? sportsTiles : sportsPreviewTiles;
   const visibleHeight = expanded ? SPORTS_GRID_HEIGHT : SPORTS_PREVIEW_HEIGHT;
 
   const toggle = () => {
     const next = !expanded;
     setExpanded(next);
-    if (!next) {
-      rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (!next) scrollToPortfolioTabs();
   };
 
   return (
-    <div ref={rootRef} className="mt-16">
+    <div className="mt-16">
       <div
         className="overflow-hidden"
         style={{ aspectRatio: `${SPORTS_GRID_WIDTH} / ${visibleHeight}` }}

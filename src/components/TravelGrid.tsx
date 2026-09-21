@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import PortfolioImage from "@/components/PortfolioImage";
+import { scrollToPortfolioTabs } from "@/lib/scroll-portfolio-tabs";
 import {
   TRAVEL_GRID_HEIGHT,
   TRAVEL_GRID_WIDTH,
@@ -12,20 +13,17 @@ import {
 
 export default function TravelGrid() {
   const [expanded, setExpanded] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
   const tiles = expanded ? travelTiles : travelPreviewTiles;
   const visibleHeight = expanded ? TRAVEL_GRID_HEIGHT : TRAVEL_PREVIEW_HEIGHT;
 
   const toggle = () => {
     const next = !expanded;
     setExpanded(next);
-    if (!next) {
-      rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (!next) scrollToPortfolioTabs();
   };
 
   return (
-    <div ref={rootRef} className="mt-16">
+    <div className="mt-16">
       <div
         className="overflow-hidden"
         style={{ aspectRatio: `${TRAVEL_GRID_WIDTH} / ${visibleHeight}` }}
