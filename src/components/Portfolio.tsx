@@ -22,6 +22,22 @@ import { prefetchImages, prefetchImagesNow } from "@/lib/prefetch-images";
 const mediaTabs = ["Images", "Videos"] as const;
 type MediaTab = (typeof mediaTabs)[number];
 
+const mediaTabLabels: Record<MediaTab, string> = {
+  Images: "Photography",
+  Videos: "Videography",
+};
+
+const categoryLabels: Record<ImageCategory, string> = {
+  All: "All",
+  Architectural: "Architecture",
+  Fashion: "Fashion",
+  Food: "Culinary",
+  Product: "Product",
+  Sports: "Athletics",
+  Street: "Street",
+  "Travel and Nature": "Nature",
+};
+
 const imageGrids: Record<ImageCategory, () => ReactNode> = {
   All: () => <AllGrid />,
   Architectural: () => <ArchitecturalGrid />,
@@ -124,7 +140,7 @@ export default function Portfolio() {
                 if (tab === "Videos") prefetchImagesNow(videoPosterSrcs);
               }}
             >
-              {tab}
+              {mediaTabLabels[tab]}
             </TabButton>
           ))}
         </div>
@@ -138,7 +154,7 @@ export default function Portfolio() {
                 onClick={() => showCategory(category)}
                 onIntent={() => prefetchImagesNow(previewSrcsFor(category))}
               >
-                {category}
+                {categoryLabels[category]}
               </TabButton>
             ))}
           </div>
