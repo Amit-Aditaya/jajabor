@@ -48,13 +48,8 @@ export default function About() {
               The Studio
             </p>
 
-            <h2 className="mt-5">
-              <span className="font-display block text-[4.75rem] leading-[0.9] italic text-ink sm:text-[6.25rem]">
-                About
-              </span>
-              <span className="type-stroke mt-3 block font-sans text-[2.5rem] tracking-[0.16em] text-ink sm:mt-4 sm:text-[3.125rem]">
-                Us
-              </span>
+            <h2 className="type-stroke mt-5 whitespace-nowrap font-sans text-[clamp(1.75rem,6.5vw,3.125rem)] uppercase tracking-[0.16em] text-ink">
+              About Us
             </h2>
 
             <ul className="mt-14 grid grid-cols-1 gap-0 sm:grid-cols-3">

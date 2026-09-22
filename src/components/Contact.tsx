@@ -17,13 +17,8 @@ export default function Contact() {
         <p className="text-center text-xs tracking-[0.28em] text-cream/55 uppercase">
           Get in touch
         </p>
-        <h2 className="mt-8 text-center">
-          <span className="font-display block text-[2.5rem] italic sm:text-[3.125rem]">
-            Let&apos;s
-          </span>
-          <span className="type-stroke mt-3 block font-sans text-[2.2rem] tracking-[0.12em] sm:text-[2.5rem]">
-            Work Together
-          </span>
+        <h2 className="type-stroke mt-8 whitespace-nowrap text-center font-sans text-[clamp(1.15rem,4.2vw,2.75rem)] uppercase tracking-[0.12em] text-cream">
+          Let&apos;s Work Together
         </h2>
 
         {sent ? (

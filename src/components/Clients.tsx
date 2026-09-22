@@ -58,7 +58,7 @@ export default function Clients() {
         <p className="text-center text-xs tracking-[0.28em] text-ink-muted uppercase">
           Our clients and partners
         </p>
-        <h2 className="type-stroke mt-6 text-center font-sans text-[2.5rem] tracking-[0.16em] text-ink sm:text-[3.125rem]">
+        <h2 className="type-stroke mt-6 text-center font-sans text-[clamp(1.55rem,5.6vw,3.125rem)] uppercase tracking-[0.16em] text-ink">
           Happy Clients
         </h2>
       </div>

@@ -167,13 +167,8 @@ export default function Services() {
           What we do
         </p>
 
-        <h2 className="mt-5">
-          <span className="font-display block text-[4.75rem] leading-[0.9] italic text-cream sm:text-[6.25rem]">
-            Our
-          </span>
-          <span className="type-stroke mt-3 block font-sans text-[2.5rem] tracking-[0.16em] sm:mt-4 sm:text-[3.125rem]">
-            Services
-          </span>
+        <h2 className="type-stroke mt-5 whitespace-nowrap font-sans text-[clamp(1.55rem,5.4vw,3.125rem)] uppercase tracking-[0.16em] text-cream">
+          Our Services
         </h2>
 
         <ul className="mt-14 grid max-w-3xl grid-cols-1 gap-0 sm:grid-cols-3">

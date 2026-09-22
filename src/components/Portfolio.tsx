@@ -126,7 +126,7 @@ export default function Portfolio() {
   return (
     <section ref={sectionRef} id="portfolio" className="bg-canvas py-24">
       <div className="mx-auto max-w-[1320px] px-6 sm:px-10">
-        <h2 className="type-stroke text-center font-sans text-[2.5rem] tracking-[0.16em] text-ink sm:text-[3.125rem]">
+        <h2 className="type-stroke text-center font-sans text-[clamp(1.75rem,6.5vw,3.125rem)] uppercase tracking-[0.16em] text-ink">
           Portfolio
         </h2>
         <div className="mx-auto mt-6 h-px w-14 bg-ink/40" />
