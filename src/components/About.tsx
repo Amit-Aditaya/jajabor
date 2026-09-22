@@ -1,9 +1,9 @@
 import Image from "next/image";
 
 const pillars = [
-  { n: "01", lines: ["Creative", "thinking"] },
-  { n: "02", lines: ["Strategic", "direction"] },
-  { n: "03", lines: ["Measurable", "growth"] },
+  "Creative thinking",
+  "Strategic direction",
+  "Measurable growth",
 ];
 
 export default function About() {
@@ -52,29 +52,19 @@ export default function About() {
               About Us
             </h2>
 
-            <ul className="mt-14 grid grid-cols-1 gap-0 sm:grid-cols-3">
+            <p className="mt-10 font-sans text-[1.05rem] tracking-[0.06em] text-ink">
               {pillars.map((pillar, index) => (
-                <li
-                  key={pillar.n}
-                  className={`min-w-0 border-t border-ink/20 py-6 sm:py-7 ${
-                    index === 0 ? "sm:pr-5" : ""
-                  } ${index === 1 ? "sm:border-x sm:px-5" : ""} ${
-                    index === 2 ? "sm:pl-5" : ""
-                  }`}
-                >
-                  <p className="text-[11px] tracking-[0.28em] text-ink-muted">
-                    {pillar.n}
-                  </p>
-                  <p className="mt-3 font-sans text-[1.05rem] leading-[1.45] tracking-[0.06em] text-ink">
-                    {pillar.lines.map((line) => (
-                      <span key={line} className="block">
-                        {line}
-                      </span>
-                    ))}
-                  </p>
-                </li>
+                <span key={pillar}>
+                  {index > 0 && " "}
+                  {pillar}
+                  {index < pillars.length - 1 && (
+                    <span className="text-ink/35" aria-hidden>
+                      {"\u00A0|"}
+                    </span>
+                  )}
+                </span>
               ))}
-            </ul>
+            </p>
 
             <div className="mt-12 max-w-[38rem] space-y-7">
               <p className="font-sans text-[1.45rem] leading-[1.45] text-ink sm:text-[1.5625rem]">

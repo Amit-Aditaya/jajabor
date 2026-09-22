@@ -31,14 +31,10 @@ const offerings = [
   },
 ];
 
-const ideas = [
-  { n: "01", title: "Ideas." },
-  { n: "02", title: "Stories." },
-  { n: "03", title: "Growth." },
-];
+const ideas = ["Ideas.", "Stories.", "Growth."];
 
 function iconClass(className?: string) {
-  return `h-8 w-8 ${className ?? ""}`;
+  return `h-11 w-11 ${className ?? ""}`;
 }
 
 function IconBrand({ className }: { className?: string }) {
@@ -171,25 +167,19 @@ export default function Services() {
           Our Services
         </h2>
 
-        <ul className="mt-14 grid max-w-3xl grid-cols-1 gap-0 sm:grid-cols-3">
+        <p className="mt-10 font-sans text-[1.05rem] tracking-[0.06em] text-cream">
           {ideas.map((idea, index) => (
-            <li
-              key={idea.title}
-              className={`min-w-0 border-t border-cream/20 py-6 sm:py-7 ${
-                index === 0 ? "sm:pr-5" : ""
-              } ${index === 1 ? "sm:border-x sm:border-cream/20 sm:px-5" : ""} ${
-                index === 2 ? "sm:pl-5" : ""
-              }`}
-            >
-              <p className="text-[11px] tracking-[0.28em] text-cream/45">
-                {idea.n}
-              </p>
-              <p className="mt-3 font-sans text-[1.05rem] tracking-[0.06em] text-cream">
-                {idea.title}
-              </p>
-            </li>
+            <span key={idea}>
+              {index > 0 && " "}
+              {idea}
+              {index < ideas.length - 1 && (
+                <span className="text-cream/40" aria-hidden>
+                  {"\u00A0|"}
+                </span>
+              )}
+            </span>
           ))}
-        </ul>
+        </p>
 
         <ul className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
           {offerings.map((item, index) => (
