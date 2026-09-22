@@ -161,12 +161,25 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
       return { video, el, ratio, onScreen };
     });
 
-    if (withSound && !soundBlocked.current) audibleId.current = primaryId;
+    if (!withSound) {
+      for (const { video, el, onScreen } of cards) {
+        if (!el) continue;
+        const hovered = audibleId.current === video.id;
+        if (onScreen && hovered) {
+          if (el.paused || !hasSrc(el, video.src)) playCard(video);
+        } else if (!el.paused) {
+          pauseCard(video);
+        }
+      }
+      return;
+    }
+
+    if (!soundBlocked.current) audibleId.current = primaryId;
 
     for (const { video, el, onScreen } of cards) {
       if (!el) continue;
       if (onScreen) {
-        if (withSound && !el.paused && hasSrc(el, video.src)) {
+        if (!el.paused && hasSrc(el, video.src)) {
           setElementAudible(el, !soundBlocked.current && video.id === primaryId);
         }
         if (el.paused || !hasSrc(el, video.src)) playCard(video);
@@ -230,11 +243,12 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
     root.scrollBy({ left: direction * (card.offsetWidth + gap), behavior: "smooth" });
   };
 
-  const unmuteCard = (video: PortfolioVideo) => {
-    if (!hoverCapable.current) return;
+  const playHovered = (video: PortfolioVideo) => {
+    if (prefersInlineSound()) return;
     audibleId.current = video.id;
-    for (const [id, el] of Object.entries(players.current)) {
-      if (el && id !== video.id) setElementAudible(el, false);
+    soundBlocked.current = false;
+    for (const item of videos) {
+      if (item.id !== video.id) pauseCard(item);
     }
     playCard(video);
   };
@@ -245,11 +259,9 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
     syncVisiblePlayback();
   };
 
-  const remuteCard = (video: PortfolioVideo) => {
-    if (!hoverCapable.current || prefersInlineSound()) return;
-    if (audibleId.current === video.id) audibleId.current = null;
-    const el = players.current[video.id];
-    if (el) setElementAudible(el, false);
+  const stopHovered = (video: PortfolioVideo) => {
+    if (prefersInlineSound()) return;
+    pauseCard(video);
   };
 
   return (
@@ -280,9 +292,13 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
               key={video.id}
               data-video-id={video.id}
               className="group relative aspect-[9/16] w-full shrink-0 snap-start overflow-hidden bg-charcoal sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
-              onMouseEnter={() => unmuteCard(video)}
-              onMouseLeave={() => remuteCard(video)}
+              onMouseEnter={() => playHovered(video)}
+              onMouseLeave={() => stopHovered(video)}
               onClick={() => {
+                if (!prefersInlineSound()) {
+                  playHovered(video);
+                  return;
+                }
                 const el = players.current[video.id];
                 if (el?.paused) playCard(video);
               }}
