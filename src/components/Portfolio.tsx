@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import ArchitecturalGrid from "@/components/ArchitecturalGrid";
 import FashionGrid from "@/components/FashionGrid";
 import FoodGrid from "@/components/FoodGrid";
@@ -55,17 +56,20 @@ function TabButton({
   children,
   onClick,
   onIntent,
+  onPointerDown,
 }: {
   active: boolean;
   children: ReactNode;
   onClick: () => void;
   onIntent?: () => void;
+  onPointerDown?: () => void;
 }) {
   return (
     <button
       type="button"
       aria-pressed={active}
       onClick={onClick}
+      onPointerDown={onPointerDown}
       onPointerEnter={onIntent}
       onFocus={onIntent}
       className={`px-8 py-3 text-lg transition-colors ${
@@ -139,7 +143,23 @@ export default function Portfolio() {
             <TabButton
               key={tab}
               active={media === tab}
-              onClick={() => showMedia(tab)}
+              onClick={() => {
+                showMedia(tab);
+                if (tab === "Videos") {
+                  window.dispatchEvent(new Event("portfolio-unlock-sound"));
+                }
+              }}
+              onPointerDown={
+                tab === "Videos"
+                  ? () => {
+                      prefetchImagesNow(videoPosterSrcs);
+                      flushSync(() => {
+                        setVisitedVideos(true);
+                        setMedia("Videos");
+                      });
+                    }
+                  : undefined
+              }
               onIntent={() => {
                 if (tab === "Videos") prefetchImagesNow(videoPosterSrcs);
               }}
