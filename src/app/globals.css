@@ -84,7 +84,20 @@ h4 {
   }
 }
 
+@keyframes testimonial-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .testimonial-progress {
+    animation: none !important;
+  }
+
   .clients-carousel {
     mask-image: none;
     overflow: visible;
