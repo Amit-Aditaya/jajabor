@@ -3,21 +3,21 @@ import Image from "next/image";
 const socialLinks = [
   {
     name: "Facebook",
-    href: "#",
+    href: "https://www.facebook.com/jajabor.nomad",
     src: "/images/social_icons/Facebook.png",
     width: 513,
     height: 510,
   },
   {
     name: "Instagram",
-    href: "#",
+    href: "https://www.instagram.com/jajabor.nomad/",
     src: "/images/social_icons/Instagram.png",
     width: 512,
     height: 512,
   },
   {
     name: "WhatsApp",
-    href: "#",
+    href: "https://wa.me/8801352564999",
     src: "/images/social_icons/WhatsApp.png",
     width: 514,
     height: 496,
@@ -34,6 +34,8 @@ export default function Footer() {
             <a
               key={link.name}
               href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label={link.name}
               className="inline-flex h-9 w-9 items-center justify-center opacity-80 transition-opacity hover:opacity-100"
             >
