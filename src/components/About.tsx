@@ -15,29 +15,16 @@ export default function About() {
       <div className="mx-auto max-w-[1480px] px-6 sm:px-10">
         <div className="grid items-start gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.15fr)] lg:gap-16 xl:gap-24">
           <figure className="order-2 min-w-0 lg:order-1 lg:sticky lg:top-28">
-            <div className="relative">
-              <div className="relative aspect-[3/4] overflow-hidden bg-[#e6e1d8]">
-                <Image
-                  src="/images/portfolio/Architectural/Archi-5.jpg"
-                  alt="Sunlit colonnade photographed for Jajabor"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="pointer-events-none absolute -bottom-8 right-6 hidden w-[46%] overflow-hidden shadow-[0_24px_60px_rgba(61,58,55,0.22)] ring-[10px] ring-cream lg:block">
-                <div className="relative aspect-[4/5]">
-                  <Image
-                    src="/images/portfolio/Architectural/Archi-9.jpg"
-                    alt=""
-                    fill
-                    sizes="18vw"
-                    className="object-cover"
-                  />
-                </div>
-              </div>
+            <div className="relative aspect-[579/814] overflow-hidden">
+              <Image
+                src="/images/About Us Grid.png"
+                alt="Black-and-white grid of Jajabor photography: a photographer in the field, cameras, studio lights, and a jump under floodlights"
+                fill
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="object-cover"
+              />
             </div>
-            <figcaption className="mt-6 flex items-center gap-4 text-[11px] tracking-[0.28em] text-ink-muted lg:mt-16">
+            <figcaption className="mt-6 flex items-center gap-4 text-[11px] tracking-[0.28em] text-ink-muted">
               <span>Architecture · Culture · Craft</span>
               <span className="h-px flex-1 bg-ink/20" />
             </figcaption>
