@@ -43,6 +43,14 @@ next-env.d.ts
 # generated display copies of portfolio photos (created by scripts/optimize-portfolio-images.mjs)
 /public/images/portfolio/**/*.webp
 
+# watermarked portfolio masters stay on disk; do not commit these large originals
+/public/images/portfolio/Fashion/*.jpg
+/public/images/portfolio/Food/*.jpg
+/public/images/portfolio/Product/*.jpg
+/public/images/portfolio/Sports/*.jpg
+/public/images/portfolio/Street/*.jpg
+/public/images/portfolio/Travel and Nature/*.jpg
+
 # local assets
 /public/images/portfolio/Architectural/ARCHI GRID-01.png
 /public/images/portfolio/Fashion/FASHION GRID.png
