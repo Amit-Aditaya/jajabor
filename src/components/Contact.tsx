@@ -3,6 +3,27 @@
 import { useState, type FormEvent } from "react";
 
 const CONTACT_EMAIL = "jforjajabor@gmail.com";
+const SUBMIT_TIMEOUT_MS = 35_000;
+
+function readSubmitResult(body: string): { success?: string | boolean; message?: string } | null {
+  const trimmed = body.trim();
+  if (!trimmed) return null;
+
+  try {
+    return JSON.parse(trimmed) as { success?: string | boolean; message?: string };
+  } catch {
+    const end = trimmed.indexOf("}");
+    if (end === -1) return null;
+    try {
+      return JSON.parse(trimmed.slice(0, end + 1)) as {
+        success?: string | boolean;
+        message?: string;
+      };
+    } catch {
+      return null;
+    }
+  }
+}
 
 const fields = [
   { name: "name", label: "Your Name (required)", type: "text", required: true },
@@ -34,6 +55,9 @@ export default function Contact() {
 
     setSending(true);
 
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
+
     try {
       const response = await fetch(
         `https://formsubmit.co/ajax/${encodeURIComponent(CONTACT_EMAIL)}`,
@@ -55,14 +79,11 @@ export default function Contact() {
             _captcha: "false",
             _replyto: email,
           }),
+          signal: controller.signal,
         },
       );
 
-      const result = (await response.json().catch(() => null)) as {
-        success?: string | boolean;
-        message?: string;
-      } | null;
-
+      const result = readSubmitResult(await response.text());
       const delivered =
         response.ok &&
         (result?.success === true || result?.success === "true");
@@ -76,6 +97,7 @@ export default function Contact() {
     } catch {
       setError("failed");
     } finally {
+      window.clearTimeout(timeoutId);
       setSending(false);
     }
   }
@@ -169,6 +191,9 @@ export default function Contact() {
               >
                 {sending ? "Sending" : "Send"}
               </button>
+              {sending ? (
+                <p className="mt-4 text-sm text-cream/55">This can take a few seconds.</p>
+              ) : null}
             </div>
           </form>
         )}
