@@ -1,4 +1,4 @@
-import { readdir, mkdir, stat } from "node:fs/promises";
+import { readdir, mkdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -72,3 +72,45 @@ for (const file of files) {
 console.log(
   `Portfolio images: ${converted} converted, ${skipped} up-to-date, ${files.length} total`,
 );
+
+const dataDir = path.join(ROOT, "src/data");
+const dataFiles = (await readdir(dataDir)).filter((name) => name.endsWith(".ts"));
+const referenced = new Set();
+
+for (const name of dataFiles) {
+  const text = await readFile(path.join(dataDir, name), "utf8");
+
+  for (const match of text.matchAll(/["'`](\/images\/portfolio\/[^"'`$]+\.jpe?g)["'`]/g)) {
+    referenced.add(match[1]);
+  }
+
+  const numbers = [...text.matchAll(/\bimg\((\d+)\)/g)].map((match) => match[1]);
+  for (const match of text.matchAll(/`(\/images\/portfolio\/[^`$]*\$\{n\}[^`$]*\.jpe?g)`/g)) {
+    for (const n of numbers) {
+      referenced.add(match[1].replaceAll("${n}", n));
+    }
+  }
+
+  for (const match of text.matchAll(/\bvideo\(\s*"([^"]+\.mp4)"/g)) {
+    referenced.add(`/images/portfolio/Videos/posters/${match[1]}.jpg`);
+  }
+}
+
+const missing = [];
+for (const src of referenced) {
+  const webp = path.join(ROOT, "public", decodeURI(src).replace(/\.jpe?g$/i, ".webp").slice(1));
+  try {
+    const info = await stat(webp);
+    if (info.size === 0) missing.push(src);
+  } catch {
+    missing.push(src);
+  }
+}
+
+if (missing.length) {
+  console.error(
+    `Missing ${missing.length} portfolio display image(s). Run this script where the JPEG masters exist, then commit the generated .webp files:`,
+  );
+  for (const src of missing.sort()) console.error(`  ${src}`);
+  process.exit(1);
+}

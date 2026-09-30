@@ -40,10 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# generated display copies of portfolio photos (created by scripts/optimize-portfolio-images.mjs)
-/public/images/portfolio/**/*.webp
-
 # watermarked portfolio masters stay on disk; do not commit these large originals
+# The .webp display copies next to them ARE committed — production only has what git has,
+# and the site requests those webp files.
 /public/images/portfolio/Fashion/*.jpg
 /public/images/portfolio/Food/*.jpg
 /public/images/portfolio/Product/*.jpg
