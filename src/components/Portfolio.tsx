@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import ArchitecturalGrid from "@/components/ArchitecturalGrid";
 import FashionGrid from "@/components/FashionGrid";
@@ -12,13 +12,11 @@ import TravelGrid from "@/components/TravelGrid";
 import AllGrid from "@/components/AllGrid";
 import VideoGrid from "@/components/VideoGrid";
 import {
-  allPreviewSrcs,
   imageCategories,
-  previewSrcsFor,
   videoPosterSrcs,
   type ImageCategory,
 } from "@/data/portfolio-previews";
-import { prefetchImages, prefetchImagesNow } from "@/lib/prefetch-images";
+import { prefetchImagesNow } from "@/lib/prefetch-images";
 import { PORTFOLIO_TABS_ID } from "@/lib/scroll-portfolio-tabs";
 
 const mediaTabs = ["Images", "Videos"] as const;
@@ -84,30 +82,12 @@ function TabButton({
 }
 
 export default function Portfolio() {
-  const sectionRef = useRef<HTMLElement>(null);
   const [media, setMedia] = useState<MediaTab>("Images");
   const [activeCategory, setActiveCategory] = useState<ImageCategory>("All");
   const [visitedCategories, setVisitedCategories] = useState<Set<ImageCategory>>(
     () => new Set(["All"]),
   );
   const [visitedVideos, setVisitedVideos] = useState(false);
-
-  useEffect(() => {
-    const root = sectionRef.current;
-    if (!root) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        prefetchImages([...allPreviewSrcs, ...videoPosterSrcs]);
-        observer.disconnect();
-      },
-      { rootMargin: "400px" },
-    );
-
-    observer.observe(root);
-    return () => observer.disconnect();
-  }, []);
 
   const showMedia = (tab: MediaTab) => {
     setMedia(tab);
@@ -128,7 +108,7 @@ export default function Portfolio() {
   };
 
   return (
-    <section ref={sectionRef} id="portfolio" className="bg-canvas py-24">
+    <section id="portfolio" className="bg-canvas py-24">
       <div className="mx-auto max-w-[1320px] px-6 sm:px-10">
         <h2 className="type-stroke text-center font-sans text-[clamp(1.75rem,6.5vw,3.125rem)] uppercase tracking-[0.16em] text-ink">
           Portfolio
@@ -176,7 +156,6 @@ export default function Portfolio() {
                 key={category}
                 active={activeCategory === category}
                 onClick={() => showCategory(category)}
-                onIntent={() => prefetchImagesNow(previewSrcsFor(category))}
               >
                 {categoryLabels[category]}
               </TabButton>
