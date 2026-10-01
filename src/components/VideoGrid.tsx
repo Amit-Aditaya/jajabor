@@ -1,7 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type SyntheticEvent,
+} from "react";
+import MediaLoader, { MediaMark } from "@/components/MediaLoader";
 import { videos, type PortfolioVideo } from "@/data/videos";
 import { optimizedSrc } from "@/lib/media-src";
 
@@ -23,6 +31,116 @@ function setElementAudible(el: HTMLVideoElement, audible: boolean) {
   } else {
     el.setAttribute("muted", "");
   }
+}
+
+function VideoCard({
+  video,
+  index,
+  playing,
+  playerRef,
+  onPlayingChange,
+  onMouseEnter,
+  onMouseLeave,
+  onClick,
+}: {
+  video: PortfolioVideo;
+  index: number;
+  playing: boolean;
+  playerRef: (el: HTMLVideoElement | null) => void;
+  onPlayingChange: (playing: boolean) => void;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onClick: () => void;
+}) {
+  const poster = optimizedSrc(video.poster);
+  const fit = video.landscape ? "object-contain bg-charcoal" : "object-cover";
+  const posterRef = useRef<HTMLImageElement>(null);
+  const [posterReady, setPosterReady] = useState(false);
+  const [instant, setInstant] = useState(false);
+  const [buffering, setBuffering] = useState(false);
+
+  const noteBuffering = (event: SyntheticEvent<HTMLVideoElement>) => {
+    const el = event.currentTarget;
+    if (!el.getAttribute("src") && !el.currentSrc) return;
+    setBuffering(true);
+  };
+
+  useLayoutEffect(() => {
+    const img = posterRef.current;
+    if (img?.complete && img.naturalWidth > 0) {
+      setInstant(true);
+      setPosterReady(true);
+    }
+  }, [poster]);
+
+  return (
+    <article
+      data-video-id={video.id}
+      className="group relative aspect-[9/16] w-full shrink-0 snap-start overflow-hidden bg-charcoal sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={onClick}
+    >
+      <video
+        ref={playerRef}
+        className={`portfolio-video absolute inset-0 h-full w-full ${fit}`}
+        poster={poster}
+        loop
+        playsInline
+        preload={index < 2 ? "auto" : "none"}
+        onLoadStart={noteBuffering}
+        onWaiting={noteBuffering}
+        onStalled={noteBuffering}
+        onPlaying={() => setBuffering(false)}
+        onPlay={() => onPlayingChange(true)}
+        onPause={() => {
+          setBuffering(false);
+          onPlayingChange(false);
+        }}
+        controlsList="nofullscreen nodownload noremoteplayback"
+        disablePictureInPicture
+      />
+
+      <div
+        className={`pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-charcoal/25 transition-opacity duration-300 ${
+          playing ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        <Image
+          ref={posterRef}
+          src={poster}
+          alt=""
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          loading={index < 3 ? "eager" : "lazy"}
+          decoding="async"
+          className={`${fit} -z-10 opacity-80`}
+          onLoad={() => setPosterReady(true)}
+          onError={() => setPosterReady(true)}
+        />
+        <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-cream/90 bg-charcoal/30 backdrop-blur-sm">
+          {buffering ? (
+            <MediaMark tone="cream" size="badge" />
+          ) : (
+            <svg viewBox="0 0 24 24" aria-hidden className="ml-1 h-7 w-7 fill-cream">
+              <path d="M8 5.14v13.72L19.5 12 8 5.14Z" />
+            </svg>
+          )}
+        </span>
+        <span className="font-sans text-sm tracking-[0.16em] text-cream">{video.title}</span>
+      </div>
+
+      <MediaLoader tone="dark" visible={!posterReady} instant={instant} />
+
+      {playing && buffering && (
+        <span className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-cream/90 bg-charcoal/40 backdrop-blur-sm">
+            <MediaMark tone="cream" size="badge" />
+          </span>
+        </span>
+      )}
+    </article>
+  );
 }
 
 export default function VideoGrid({ active = true }: { active?: boolean }) {
@@ -282,66 +400,26 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
           }
         }}
       >
-        {videos.map((video, index) => {
-          const playing = playingIds.has(video.id);
-          const fit = video.landscape ? "object-contain bg-charcoal" : "object-cover";
-          const poster = optimizedSrc(video.poster);
-
-          return (
-            <article
-              key={video.id}
-              data-video-id={video.id}
-              className="group relative aspect-[9/16] w-full shrink-0 snap-start overflow-hidden bg-charcoal sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
-              onMouseEnter={() => playHovered(video)}
-              onMouseLeave={() => stopHovered(video)}
-              onClick={() => {
-                if (!prefersInlineSound()) {
-                  playHovered(video);
-                  return;
-                }
-                const el = players.current[video.id];
-                if (el?.paused) playCard(video);
-              }}
-            >
-              <video
-                ref={playerRef(video.id)}
-                className={`portfolio-video absolute inset-0 h-full w-full ${fit}`}
-                poster={poster}
-                loop
-                playsInline
-                preload={index < 2 ? "auto" : "none"}
-                onPlay={() => markPlaying(video.id, true)}
-                onPause={() => markPlaying(video.id, false)}
-                controlsList="nofullscreen nodownload noremoteplayback"
-                disablePictureInPicture
-              />
-
-              <div
-                className={`pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-charcoal/25 transition-opacity duration-300 ${
-                  playing ? "opacity-0" : "opacity-100"
-                }`}
-              >
-                <Image
-                  src={poster}
-                  alt=""
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  loading={index < 3 ? "eager" : "lazy"}
-                  decoding="async"
-                  className={`${fit} -z-10 opacity-80`}
-                />
-                <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-cream/90 bg-charcoal/30 backdrop-blur-sm">
-                  <svg viewBox="0 0 24 24" aria-hidden className="ml-1 h-7 w-7 fill-cream">
-                    <path d="M8 5.14v13.72L19.5 12 8 5.14Z" />
-                  </svg>
-                </span>
-                <span className="font-sans text-sm tracking-[0.16em] text-cream">
-                  {video.title}
-                </span>
-              </div>
-            </article>
-          );
-        })}
+        {videos.map((video, index) => (
+          <VideoCard
+            key={video.id}
+            video={video}
+            index={index}
+            playing={playingIds.has(video.id)}
+            playerRef={playerRef(video.id)}
+            onPlayingChange={(playing) => markPlaying(video.id, playing)}
+            onMouseEnter={() => playHovered(video)}
+            onMouseLeave={() => stopHovered(video)}
+            onClick={() => {
+              if (!prefersInlineSound()) {
+                playHovered(video);
+                return;
+              }
+              const el = players.current[video.id];
+              if (el?.paused) playCard(video);
+            }}
+          />
+        ))}
       </div>
 
       {canPrev && (
