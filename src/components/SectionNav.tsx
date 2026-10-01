@@ -15,8 +15,8 @@ const SECTIONS = [
 type SectionId = (typeof SECTIONS)[number]["id"];
 
 const DURATION = 500;
-const DESKTOP_QUERY = "(min-width: 1024px)";
 const SWITCH_EASE = "cubic-bezier(0.5, 0.12, 0.46, 0.88)";
+const SWIPE_THRESHOLD = 36;
 
 function easeInOutCirc(t: number) {
   return (t *= 2) < 1
@@ -58,7 +58,6 @@ export default function SectionNav() {
   const goToRef = useRef<(id: SectionId) => void>(() => {});
 
   useEffect(() => {
-    const desktop = window.matchMedia(DESKTOP_QUERY);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const root = document.documentElement;
 
@@ -112,7 +111,7 @@ export default function SectionNav() {
     };
 
     const scrollToId = (id: SectionId, deltaY = 1) => {
-      if (!desktop.matches || animating || performance.now() < busyUntil) return;
+      if (animating || performance.now() < busyUntil) return;
       const top = sectionScrollTarget(id, deltaY);
       if (top == null) return;
       commit(id);
@@ -167,8 +166,7 @@ export default function SectionNav() {
       return prev >= 0 ? SECTIONS[prev].id : null;
     };
 
-    const sectionInView = () => {
-      const y = window.scrollY + 10;
+    const sectionAt = (y: number) => {
       let id: SectionId = SECTIONS[0].id;
       for (const section of SECTIONS) {
         const top = sectionTop(section.id);
@@ -176,6 +174,8 @@ export default function SectionNav() {
       }
       return id;
     };
+
+    const sectionInView = () => sectionAt(window.scrollY + 10);
 
     const wheelSamples: number[] = [];
     let lastWheelAt = 0;
@@ -206,7 +206,7 @@ export default function SectionNav() {
     };
 
     const onWheel = (event: WheelEvent) => {
-      if (!desktop.matches || reduced.matches || event.ctrlKey) return;
+      if (reduced.matches || event.ctrlKey) return;
       if (event.deltaY === 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
 
       const now = performance.now();
@@ -284,7 +284,7 @@ export default function SectionNav() {
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!desktop.matches || animating) return;
+      if (animating) return;
       if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
       if (isTypingTarget(event.target)) return;
 
@@ -295,8 +295,72 @@ export default function SectionNav() {
       scrollToId(SECTIONS[next].id, event.key === "ArrowDown" ? 1 : -1);
     };
 
+    let touchTracking = false;
+    let touchId = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartScroll = 0;
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (reduced.matches || event.touches.length !== 1) return;
+      if (isTypingTarget(event.target)) return;
+      const touch = event.touches[0];
+      touchTracking = true;
+      touchId = touch.identifier;
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchStartScroll = window.scrollY;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (!touchTracking || reduced.matches) return;
+      if (event.touches.length !== 1) {
+        touchTracking = false;
+        return;
+      }
+      const touch = event.touches[0];
+      if (touch.identifier !== touchId) return;
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy) || Math.abs(dy) < 8) return;
+
+      if (sectionAt(touchStartScroll + 10) === "portfolio") {
+        if (animating) event.preventDefault();
+        return;
+      }
+
+      event.preventDefault();
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      if (!touchTracking) return;
+      touchTracking = false;
+      const touch = [...event.changedTouches].find((item) => item.identifier === touchId);
+      if (!touch || reduced.matches) return;
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy)) return;
+
+      const startedIn = sectionAt(touchStartScroll + 10);
+      if (startedIn === "portfolio") {
+        const now = sectionInView();
+        if (now !== "portfolio" && Math.abs(window.scrollY - touchStartScroll) > 24) {
+          scrollToId(now, window.scrollY > touchStartScroll ? 1 : -1);
+        }
+        return;
+      }
+
+      if (Math.abs(dy) < SWIPE_THRESHOLD) return;
+      const deltaY = -dy;
+      const dest = destinationFor(startedIn, deltaY);
+      if (dest) scrollToId(dest, deltaY);
+    };
+
+    const onTouchCancel = () => {
+      touchTracking = false;
+    };
+
     const onClick = (event: MouseEvent) => {
-      if (!desktop.matches) return;
       const link = (event.target as Element | null)?.closest?.("a[href^='#']");
       if (!link) return;
       const id = link.getAttribute("href")?.slice(1);
@@ -311,11 +375,15 @@ export default function SectionNav() {
     };
 
     const previousBehavior = root.style.scrollBehavior;
-    if (desktop.matches && !reduced.matches) {
+    if (!reduced.matches) {
       root.style.scrollBehavior = "auto";
     }
 
     document.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    document.addEventListener("touchstart", onTouchStart, { passive: true, capture: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: false, capture: true });
+    document.addEventListener("touchend", onTouchEnd, { capture: true });
+    document.addEventListener("touchcancel", onTouchCancel, { capture: true });
     document.addEventListener("keydown", onKeyDown);
     document.addEventListener("click", onClick);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -327,6 +395,10 @@ export default function SectionNav() {
       cancelAnimationFrame(spyFrame);
       root.style.scrollBehavior = previousBehavior;
       document.removeEventListener("wheel", onWheel, { capture: true });
+      document.removeEventListener("touchstart", onTouchStart, { capture: true });
+      document.removeEventListener("touchmove", onTouchMove, { capture: true });
+      document.removeEventListener("touchend", onTouchEnd, { capture: true });
+      document.removeEventListener("touchcancel", onTouchCancel, { capture: true });
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("click", onClick);
       window.removeEventListener("scroll", onScroll);
@@ -337,7 +409,7 @@ export default function SectionNav() {
   return (
     <nav
       aria-label="Section"
-      className="pointer-events-none fixed top-1/2 right-5 z-40 hidden -translate-y-1/2 mix-blend-difference text-white lg:block"
+      className="pointer-events-none fixed top-1/2 right-5 z-40 -translate-y-1/2 mix-blend-difference text-white"
     >
       <ol className="flex flex-col items-center">
         {SECTIONS.map((section) => {
