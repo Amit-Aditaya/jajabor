@@ -30,6 +30,18 @@ function sectionTop(id: string) {
   return Math.round(el.getBoundingClientRect().top + window.scrollY);
 }
 
+function sectionScrollTarget(id: string, deltaY: number) {
+  const top = sectionTop(id);
+  if (top == null) return null;
+  // Entering the tall portfolio from below should stop on its last screen,
+  // not jump to the heading and on into Services.
+  if (id !== "portfolio" || deltaY >= 0) return top;
+  const el = document.getElementById(id);
+  if (!el) return top;
+  const bottom = Math.round(el.getBoundingClientRect().bottom + window.scrollY);
+  return Math.max(top, bottom - window.innerHeight);
+}
+
 function isTypingTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
@@ -54,8 +66,8 @@ export default function SectionNav() {
     let busyUntil = 0;
     let frame = 0;
     let spyFrame = 0;
-    let lastY = window.scrollY;
     let current: SectionId = "home";
+    let needsWheelRelease = false;
 
     const known = new Set<string>(SECTIONS.map((section) => section.id));
 
@@ -71,9 +83,9 @@ export default function SectionNav() {
 
     const spy = () => {
       const y = window.scrollY;
-      const goingDown = y >= lastY;
-      lastY = y;
-      const line = goingDown ? y + window.innerHeight * 0.7 : y + 1;
+      // Stay with the section at the top of the screen. A deeper line skips
+      // clients, which is shorter than the viewport, and highlights testimonials.
+      const line = y + Math.min(80, window.innerHeight * 0.12);
       let id: SectionId = SECTIONS[0].id;
       for (const section of SECTIONS) {
         const top = sectionTop(section.id);
@@ -87,12 +99,21 @@ export default function SectionNav() {
       animating = false;
       busyUntil = 0;
       spy();
+      // Snapping into Portfolio calls preventDefault, so Chrome keeps the wheel
+      // target until the pointer moves. Release it for both directions.
+      const portfolioTop = sectionTop("portfolio");
+      const clientsTop = sectionTop("clients");
+      const y = window.scrollY + 10;
+      needsWheelRelease =
+        portfolioTop != null &&
+        portfolioTop <= y &&
+        (clientsTop == null || clientsTop > y);
       releaseWheelTarget();
     };
 
-    const scrollToId = (id: SectionId) => {
+    const scrollToId = (id: SectionId, deltaY = 1) => {
       if (!desktop.matches || animating || performance.now() < busyUntil) return;
-      const top = sectionTop(id);
+      const top = sectionScrollTarget(id, deltaY);
       if (top == null) return;
       commit(id);
 
@@ -189,6 +210,31 @@ export default function SectionNav() {
       if (event.deltaY === 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
 
       const now = performance.now();
+
+      // Portfolio is taller than the screen. Scroll that section normally, and
+      // keep section snapping everywhere else. Swallow the gesture that snapped
+      // into it so the coast cannot keep traveling up into Services.
+      if (sectionInView() === "portfolio") {
+        const sign = Math.sign(event.deltaY);
+        const gap = now - lastWheelAt;
+        const newGesture =
+          !animating &&
+          (gap > 180 || (lastWheelSign !== 0 && sign !== lastWheelSign));
+        if (newGesture || needsWheelRelease) {
+          handledGesture = false;
+          needsWheelRelease = false;
+          // The snap called preventDefault, so Chrome keeps sending wheel
+          // events to the old target until the pointer moves. Force a new hit
+          // test so scrolling continues without nudging the mouse.
+          wheelTarget = event.target;
+          releaseWheelTarget();
+        }
+        lastWheelAt = now;
+        lastWheelSign = sign;
+        if (animating || handledGesture) event.preventDefault();
+        return;
+      }
+
       const sign = Math.sign(event.deltaY);
       const gap = now - lastWheelAt;
       lastWheelAt = now;
@@ -234,7 +280,7 @@ export default function SectionNav() {
       handledGesture = true;
       sawCoast = false;
       queued = false;
-      scrollToId(dest);
+      scrollToId(dest, event.deltaY);
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -246,7 +292,7 @@ export default function SectionNav() {
       const next = event.key === "ArrowDown" ? index + 1 : index - 1;
       if (next < 0 || next >= SECTIONS.length) return;
       event.preventDefault();
-      scrollToId(SECTIONS[next].id);
+      scrollToId(SECTIONS[next].id, event.key === "ArrowDown" ? 1 : -1);
     };
 
     const onClick = (event: MouseEvent) => {
