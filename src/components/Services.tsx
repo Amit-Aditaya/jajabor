@@ -156,7 +156,7 @@ export default function Services() {
   return (
     <section
       id="services"
-      className="relative overflow-hidden bg-charcoal py-24 text-cream sm:py-32 lg:py-40"
+      className="relative overflow-hidden bg-[#3d3d3d] py-24 text-cream sm:py-32 lg:py-40"
     >
       <div className="mx-auto max-w-[1480px] px-6 sm:px-10">
         <p className="text-xs tracking-[0.28em] text-cream/55 uppercase">

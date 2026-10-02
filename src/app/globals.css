@@ -61,11 +61,6 @@ h4 {
   animation: clients-marquee var(--clients-marquee-duration) linear infinite;
 }
 
-.clients-carousel:hover .clients-carousel-track,
-.clients-carousel:focus-within .clients-carousel-track {
-  animation-play-state: paused;
-}
-
 .clients-carousel-group {
   display: flex;
   gap: var(--client-gap);

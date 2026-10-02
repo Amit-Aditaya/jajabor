@@ -10,7 +10,7 @@ export default function About() {
   return (
     <section
       id="about"
-      className="relative overflow-hidden bg-cream py-24 sm:py-32 lg:py-40"
+      className="relative overflow-hidden bg-cream py-24 sm:py-32 lg:pt-24 lg:pb-40"
     >
       <div className="mx-auto max-w-[1480px] px-6 sm:px-10">
         <div className="grid items-start gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.15fr)] lg:gap-16 xl:gap-24">

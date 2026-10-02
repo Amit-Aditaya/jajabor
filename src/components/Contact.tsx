@@ -103,7 +103,7 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="bg-charcoal py-28 text-cream">
+    <section id="contact" className="bg-[#3d3d3d] py-28 text-cream">
       <div className="mx-auto max-w-[1000px] px-6 sm:px-10">
         <p className="text-center text-xs tracking-[0.28em] text-cream/55 uppercase">
           Get in touch
