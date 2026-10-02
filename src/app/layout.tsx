@@ -7,7 +7,7 @@ import "./globals.css";
 const heading = Outfit({
   variable: "--font-heading",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "700"],
 });
 
 const display = Bodoni_Moda({
