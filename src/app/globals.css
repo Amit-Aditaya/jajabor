@@ -142,6 +142,69 @@ h4 {
   }
 }
 
+/* Matches the Munson isotope filter: 1s ease, scale + rotateX flip. */
+.portfolio-stage {
+  position: relative;
+  display: flow-root;
+}
+
+.portfolio-pane.is-leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  pointer-events: none;
+}
+
+.portfolio-pane.is-entering {
+  position: relative;
+  z-index: 2;
+}
+
+.portfolio-pane.is-leaving :is(figure, article),
+.portfolio-pane.is-entering :is(figure, article) {
+  transform-origin: center center;
+  animation-duration: 1s;
+  animation-timing-function: ease;
+  animation-fill-mode: both;
+}
+
+.portfolio-pane.is-leaving :is(figure, article) {
+  animation-name: portfolio-flip-out;
+}
+
+.portfolio-pane.is-leaving [class~="overflow-x-auto"],
+.portfolio-pane.is-entering [class~="overflow-x-auto"] {
+  overflow: visible;
+}
+
+.portfolio-pane.is-entering :is(figure, article) {
+  animation-name: portfolio-flip-in;
+}
+
+@keyframes portfolio-flip-out {
+  from {
+    opacity: 1;
+    transform: perspective(800px) scale(1) rotateX(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: perspective(800px) scale(0.005) rotateX(180deg);
+  }
+}
+
+@keyframes portfolio-flip-in {
+  from {
+    opacity: 0;
+    transform: perspective(800px) scale(0.005) rotateX(180deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(800px) scale(1) rotateX(0deg);
+  }
+}
+
 .portfolio-video:fullscreen,
 .portfolio-video:-webkit-full-screen {
   width: 100% !important;
@@ -251,6 +314,11 @@ h4 {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .portfolio-pane.is-leaving :is(figure, article),
+  .portfolio-pane.is-entering :is(figure, article) {
+    animation: none;
+  }
+
   .media-loader,
   .media-reveal {
     transition: none;

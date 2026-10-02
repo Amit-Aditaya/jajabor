@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import ArchitecturalGrid from "@/components/ArchitecturalGrid";
 import FashionGrid from "@/components/FashionGrid";
@@ -13,11 +13,14 @@ import AllGrid from "@/components/AllGrid";
 import VideoGrid from "@/components/VideoGrid";
 import {
   imageCategories,
+  previewSrcsFor,
   videoPosterSrcs,
   type ImageCategory,
 } from "@/data/portfolio-previews";
 import { prefetchImagesNow } from "@/lib/prefetch-images";
 import { PORTFOLIO_TABS_ID } from "@/lib/scroll-portfolio-tabs";
+
+const FLIP_MS = 1000;
 
 const mediaTabs = ["Images", "Videos"] as const;
 type MediaTab = (typeof mediaTabs)[number];
@@ -81,6 +84,10 @@ function TabButton({
   );
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 export default function Portfolio() {
   const [media, setMedia] = useState<MediaTab>("Images");
   const [activeCategory, setActiveCategory] = useState<ImageCategory>("All");
@@ -88,8 +95,46 @@ export default function Portfolio() {
     () => new Set(["All"]),
   );
   const [visitedVideos, setVisitedVideos] = useState(false);
+  const [leavingMedia, setLeavingMedia] = useState<MediaTab | null>(null);
+  const [mediaEntering, setMediaEntering] = useState(false);
+  const [leavingCategory, setLeavingCategory] = useState<ImageCategory | null>(null);
+  const [categoryEntering, setCategoryEntering] = useState(false);
+  const mediaRef = useRef(media);
+  const categoryRef = useRef(activeCategory);
+
+  useEffect(() => {
+    if (!leavingMedia && !mediaEntering) return;
+    const id = window.setTimeout(() => {
+      setLeavingMedia(null);
+      setMediaEntering(false);
+    }, FLIP_MS);
+    return () => window.clearTimeout(id);
+  }, [media, leavingMedia, mediaEntering]);
+
+  useEffect(() => {
+    if (!leavingCategory && !categoryEntering) return;
+    const id = window.setTimeout(() => {
+      setLeavingCategory(null);
+      setCategoryEntering(false);
+    }, FLIP_MS);
+    return () => window.clearTimeout(id);
+  }, [activeCategory, leavingCategory, categoryEntering]);
+
+  const rememberCategory = (category: ImageCategory) => {
+    setVisitedCategories((current) => {
+      if (current.has(category)) return current;
+      const next = new Set(current);
+      next.add(category);
+      return next;
+    });
+  };
 
   const showMedia = (tab: MediaTab) => {
+    if (tab === mediaRef.current) return;
+    const reduced = prefersReducedMotion();
+    setLeavingMedia(reduced ? null : mediaRef.current);
+    setMediaEntering(!reduced);
+    mediaRef.current = tab;
     setMedia(tab);
     if (tab === "Videos") {
       setVisitedVideos(true);
@@ -98,13 +143,14 @@ export default function Portfolio() {
   };
 
   const showCategory = (category: ImageCategory) => {
+    if (category === categoryRef.current) return;
+    const reduced = prefersReducedMotion();
+    setLeavingCategory(reduced ? null : categoryRef.current);
+    setCategoryEntering(!reduced);
+    categoryRef.current = category;
     setActiveCategory(category);
-    setVisitedCategories((current) => {
-      if (current.has(category)) return current;
-      const next = new Set(current);
-      next.add(category);
-      return next;
-    });
+    rememberCategory(category);
+    prefetchImagesNow(previewSrcsFor(category));
   };
 
   return (
@@ -134,8 +180,7 @@ export default function Portfolio() {
                   ? () => {
                       prefetchImagesNow(videoPosterSrcs);
                       flushSync(() => {
-                        setVisitedVideos(true);
-                        setMedia("Videos");
+                        showMedia("Videos");
                       });
                     }
                   : undefined
@@ -149,35 +194,67 @@ export default function Portfolio() {
           ))}
         </div>
 
-        <div hidden={media !== "Images"} aria-hidden={media !== "Images"}>
-          <div className="mt-6 flex flex-wrap justify-center gap-4">
+        {media === "Images" || leavingMedia === "Images" ? (
+          <div
+            className={`mt-6 flex flex-wrap justify-center gap-4 ${
+              media === "Images" ? "" : "invisible pointer-events-none"
+            }`}
+          >
             {imageCategories.map((category) => (
               <TabButton
                 key={category}
                 active={activeCategory === category}
                 onClick={() => showCategory(category)}
+                onIntent={() => prefetchImagesNow(previewSrcsFor(category))}
               >
                 {categoryLabels[category]}
               </TabButton>
             ))}
           </div>
-
-          {imageCategories.map((category) => {
-            if (!visitedCategories.has(category)) return null;
-            const hidden = activeCategory !== category;
-            return (
-              <div key={category} hidden={hidden} aria-hidden={hidden}>
-                {imageGrids[category]()}
-              </div>
-            );
-          })}
-        </div>
-
-        {visitedVideos ? (
-          <div hidden={media !== "Videos"} aria-hidden={media !== "Videos"}>
-            <VideoGrid active={media === "Videos"} />
-          </div>
         ) : null}
+
+        <div className="portfolio-stage">
+          <div
+            className={`portfolio-pane ${
+              leavingMedia === "Images" ? "is-leaving" : ""
+            } ${media === "Images" && mediaEntering ? "is-entering" : ""}`}
+            hidden={media !== "Images" && leavingMedia !== "Images"}
+            aria-hidden={media !== "Images"}
+          >
+            <div className="portfolio-stage">
+              {imageCategories.map((category) => {
+                if (!visitedCategories.has(category)) return null;
+                const isActive = activeCategory === category;
+                const isLeaving = leavingCategory === category;
+                const hidden = !isActive && !isLeaving;
+                return (
+                  <div
+                    key={category}
+                    hidden={hidden}
+                    aria-hidden={hidden}
+                    className={`portfolio-pane ${isLeaving ? "is-leaving" : ""} ${
+                      isActive && categoryEntering ? "is-entering" : ""
+                    }`}
+                  >
+                    {imageGrids[category]()}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {visitedVideos ? (
+            <div
+              className={`portfolio-pane ${
+                leavingMedia === "Videos" ? "is-leaving" : ""
+              } ${media === "Videos" && mediaEntering ? "is-entering" : ""}`}
+              hidden={media !== "Videos" && leavingMedia !== "Videos"}
+              aria-hidden={media !== "Videos"}
+            >
+              <VideoGrid active={media === "Videos"} />
+            </div>
+          ) : null}
+        </div>
       </div>
     </section>
   );
