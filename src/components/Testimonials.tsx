@@ -21,6 +21,13 @@ const testimonials = [
   },
   {
     quote:
+      "What initially drew me to Jajabor was their approach to cinematography. Their visual language felt naturally aligned with my own taste and how I wanted our projects to be seen. Over time, they have developed a strong understanding of the Moiré aesthetic, making our collaboration feel effortless and genuinely creative. They bring a distinct perspective to how our work is documented and presented.",
+    name: "Fahim Bin Faruk Mashfi",
+    role: "Co Founder, Moiré Studio",
+    src: portrait("Moire\u0301 Studio.png"),
+  },
+  {
+    quote:
       "I have been working with Jajabor for 6 years now, and I couldn't be happier with the consistent quality of their work and their excellent communication. It feels so good to work with someone who is sincere, reliable, respectful and genuinely shares the client's interests. I would highly recommend them!",
     name: "Rahbar Khan",
     role: "Co Founder, Next Level Sports Management",
