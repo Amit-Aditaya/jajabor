@@ -61,7 +61,7 @@ export default function ProductGrid() {
           type="button"
           aria-expanded={expanded}
           onClick={toggle}
-          className="bg-cream px-8 py-3 text-lg text-ink transition-colors hover:bg-[#eae6df]"
+          className="bg-[#eae6df] px-8 py-3 text-lg text-ink transition-colors hover:bg-[#e0dbd2]"
         >
           {expanded ? "See less" : "See all"}
         </button>

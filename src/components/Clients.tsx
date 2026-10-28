@@ -53,7 +53,7 @@ function LogoGroup({
 
 export default function Clients() {
   return (
-    <section id="clients" className="bg-canvas py-24">
+    <section id="clients" className="bg-cream py-24">
       <div className="mx-auto max-w-[1480px] px-6 sm:px-10">
         <p className="text-center text-xs tracking-[0.28em] text-ink-muted uppercase">
           Our clients and partners

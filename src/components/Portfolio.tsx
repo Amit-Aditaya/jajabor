@@ -76,7 +76,7 @@ function TabButton({
       className={`px-8 py-3 text-lg transition-colors ${
         active
           ? "bg-charcoal text-cream"
-          : "bg-cream text-ink hover:bg-[#eae6df]"
+          : "bg-[#eae6df] text-ink hover:bg-[#e0dbd2]"
       }`}
     >
       {children}
@@ -154,7 +154,7 @@ export default function Portfolio() {
   };
 
   return (
-    <section id="portfolio" className="bg-canvas py-24">
+    <section id="portfolio" className="bg-cream py-24">
       <div className="mx-auto max-w-[1320px] px-6 sm:px-10">
         <h2 className="type-stroke text-center font-sans text-[clamp(1.75rem,6.5vw,3.125rem)] uppercase tracking-[0.16em] text-ink">
           Portfolio
