@@ -384,22 +384,23 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
 
   return (
     <div className="relative mt-16" onPointerUp={unlockInlineSound}>
-      <div
-        ref={scrollerRef}
-        className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        role="region"
-        aria-label="Portfolio videos"
-        tabIndex={0}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowRight") {
-            event.preventDefault();
-            scrollByCard(1);
-          } else if (event.key === "ArrowLeft") {
-            event.preventDefault();
-            scrollByCard(-1);
-          }
-        }}
-      >
+      <div className="overflow-x-clip">
+        <div
+          ref={scrollerRef}
+          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          role="region"
+          aria-label="Portfolio videos"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowRight") {
+              event.preventDefault();
+              scrollByCard(1);
+            } else if (event.key === "ArrowLeft") {
+              event.preventDefault();
+              scrollByCard(-1);
+            }
+          }}
+        >
         {videos.map((video, index) => (
           <VideoCard
             key={video.id}
@@ -420,6 +421,7 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
             }}
           />
         ))}
+        </div>
       </div>
 
       {canPrev && (
