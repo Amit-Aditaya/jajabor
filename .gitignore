@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# portfolio videos stay on disk; they are too large to push
+/public/images/portfolio/Videos/*.mp4
+
 # watermarked portfolio masters stay on disk; do not commit these large originals
 # The .webp display copies next to them ARE committed — production only has what git has,
 # and the site requests those webp files.
