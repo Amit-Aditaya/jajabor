@@ -26,9 +26,9 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-charcoal-soft py-8">
+    <footer className="bg-[#58595b] py-8">
       <div className="mx-auto flex max-w-[1480px] flex-col items-center justify-between gap-6 px-6 sm:flex-row sm:px-10">
-        <p className="text-cream/65">Jajabor &copy;. All rights reserved.</p>
+        <p className="text-cream">Jajabor &copy;. All rights reserved.</p>
         <nav aria-label="Social media" className="flex items-center gap-4">
           {socialLinks.map((link) => (
             <a
