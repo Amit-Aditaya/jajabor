@@ -24,7 +24,7 @@ const testimonials = [
       "What initially drew me to Jajabor was their approach to cinematography. Their visual language felt naturally aligned with my own taste and how I wanted our projects to be seen. Over time, they have developed a strong understanding of the Moiré aesthetic, making our collaboration feel effortless and genuinely creative. They bring a distinct perspective to how our work is documented and presented.",
     name: "Fahim Bin Faruk Mashfi",
     role: "Co Founder, Moiré Studio",
-    src: portrait("Moire\u0301 Studio.png"),
+    src: portrait("Moire Studio.png"),
   },
   {
     quote:
