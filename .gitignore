@@ -40,7 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# portfolio videos stay on disk; they are too large to push
+# Full-size masters stay on disk; they are too large to push.
+# The compressed copies in Videos/web are committed so production can play them.
 /public/images/portfolio/Videos/*.mp4
 
 # watermarked portfolio masters stay on disk; do not commit these large originals

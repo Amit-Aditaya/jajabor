@@ -1,20 +1,31 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, Outfit } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
-// Outfit stands in for Ace Sans (commercial). Replace with next/font/local when licensed files are available.
-const heading = Outfit({
+// Outfit stands in for Ace Sans (commercial). Files are vendored so the
+// production build does not download Google Fonts.
+const heading = localFont({
+  src: "../fonts/outfit/Outfit-Variable.woff2",
+  weight: "100 900",
   variable: "--font-heading",
-  subsets: ["latin"],
-  weight: ["400", "700"],
+  display: "swap",
 });
 
-const display = Bodoni_Moda({
+const display = localFont({
+  src: [
+    {
+      path: "../fonts/bodoni-moda/BodoniModa-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../fonts/bodoni-moda/BodoniModa-Italic.woff2",
+      weight: "400",
+      style: "italic",
+    },
+  ],
   variable: "--font-bodoni",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
+  display: "swap",
 });
 
 const evolventa = localFont({

@@ -1,7 +1,7 @@
 const VIDEO_DIR = "/images/portfolio/Videos";
 
 function src(file: string) {
-  return encodeURI(`${VIDEO_DIR}/${file}`);
+  return encodeURI(`${VIDEO_DIR}/web/${file}`);
 }
 
 function poster(file: string) {
