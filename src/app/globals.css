@@ -174,6 +174,15 @@ h4 {
   animation-name: portfolio-flip-out;
 }
 
+.video-rail {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.video-rail::-webkit-scrollbar {
+  display: none;
+}
+
 .portfolio-pane.is-leaving [class~="overflow-x-auto"],
 .portfolio-pane.is-entering [class~="overflow-x-auto"] {
   overflow: visible;

@@ -211,16 +211,16 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
       const audible = audibleId.current === video.id && !soundBlocked.current;
       setElementAudible(el, audible);
 
-      const start = el.play();
-      if (!start) return;
-      void start.catch(() => {
-        soundBlocked.current = true;
-        setElementAudible(el, false);
+    const start = el.play();
+    if (!start) return;
+    void start.catch(() => {
+      soundBlocked.current = true;
+      setElementAudible(el, false);
+      void el.play().catch(() => {
         if (audibleId.current === video.id) audibleId.current = null;
-        void el.play().catch(() => {
-          markPlaying(video.id, false);
-        });
+        markPlaying(video.id, false);
       });
+    });
     },
     [markPlaying],
   );
@@ -384,10 +384,9 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
 
   return (
     <div className="relative mt-16" onPointerUp={unlockInlineSound}>
-      <div className="overflow-x-clip">
         <div
           ref={scrollerRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="video-rail flex gap-6 scroll-smooth snap-x snap-mandatory"
           role="region"
           aria-label="Portfolio videos"
           tabIndex={0}
@@ -422,7 +421,6 @@ export default function VideoGrid({ active = true }: { active?: boolean }) {
           />
         ))}
         </div>
-      </div>
 
       {canPrev && (
         <button
