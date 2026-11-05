@@ -2,14 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
-import ArchitecturalGrid from "@/components/ArchitecturalGrid";
-import FashionGrid from "@/components/FashionGrid";
-import FoodGrid from "@/components/FoodGrid";
-import ProductGrid from "@/components/ProductGrid";
-import SportsGrid from "@/components/SportsGrid";
-import StreetGrid from "@/components/StreetGrid";
-import TravelGrid from "@/components/TravelGrid";
-import AllGrid from "@/components/AllGrid";
+import CategoryMosaic from "@/components/CategoryMosaic";
 import VideoGrid from "@/components/VideoGrid";
 import {
   imageCategories,
@@ -20,7 +13,7 @@ import {
 import { prefetchImagesNow } from "@/lib/prefetch-images";
 import { PORTFOLIO_TABS_ID } from "@/lib/scroll-portfolio-tabs";
 
-const FLIP_MS = 1000;
+const SHIFT_MS = 500;
 
 const mediaTabs = ["Images", "Videos"] as const;
 type MediaTab = (typeof mediaTabs)[number];
@@ -39,17 +32,6 @@ const categoryLabels: Record<ImageCategory, string> = {
   Sports: "Athletics",
   Street: "Street",
   "Travel and Nature": "Nature",
-};
-
-const imageGrids: Record<ImageCategory, () => ReactNode> = {
-  All: () => <AllGrid />,
-  Architectural: () => <ArchitecturalGrid />,
-  Fashion: () => <FashionGrid />,
-  Food: () => <FoodGrid />,
-  Product: () => <ProductGrid />,
-  Sports: () => <SportsGrid />,
-  Street: () => <StreetGrid />,
-  "Travel and Nature": () => <TravelGrid />,
 };
 
 function TabButton({
@@ -91,14 +73,10 @@ function prefersReducedMotion() {
 export default function Portfolio() {
   const [media, setMedia] = useState<MediaTab>("Images");
   const [activeCategory, setActiveCategory] = useState<ImageCategory>("All");
-  const [visitedCategories, setVisitedCategories] = useState<Set<ImageCategory>>(
-    () => new Set(["All"]),
-  );
   const [visitedVideos, setVisitedVideos] = useState(false);
   const [leavingMedia, setLeavingMedia] = useState<MediaTab | null>(null);
   const [mediaEntering, setMediaEntering] = useState(false);
-  const [leavingCategory, setLeavingCategory] = useState<ImageCategory | null>(null);
-  const [categoryEntering, setCategoryEntering] = useState(false);
+  const [mediaShift, setMediaShift] = useState<"next" | "prev">("next");
   const mediaRef = useRef(media);
   const categoryRef = useRef(activeCategory);
 
@@ -107,31 +85,14 @@ export default function Portfolio() {
     const id = window.setTimeout(() => {
       setLeavingMedia(null);
       setMediaEntering(false);
-    }, FLIP_MS);
+    }, SHIFT_MS);
     return () => window.clearTimeout(id);
   }, [media, leavingMedia, mediaEntering]);
-
-  useEffect(() => {
-    if (!leavingCategory && !categoryEntering) return;
-    const id = window.setTimeout(() => {
-      setLeavingCategory(null);
-      setCategoryEntering(false);
-    }, FLIP_MS);
-    return () => window.clearTimeout(id);
-  }, [activeCategory, leavingCategory, categoryEntering]);
-
-  const rememberCategory = (category: ImageCategory) => {
-    setVisitedCategories((current) => {
-      if (current.has(category)) return current;
-      const next = new Set(current);
-      next.add(category);
-      return next;
-    });
-  };
 
   const showMedia = (tab: MediaTab) => {
     if (tab === mediaRef.current) return;
     const reduced = prefersReducedMotion();
+    setMediaShift(mediaTabs.indexOf(tab) > mediaTabs.indexOf(mediaRef.current) ? "next" : "prev");
     setLeavingMedia(reduced ? null : mediaRef.current);
     setMediaEntering(!reduced);
     mediaRef.current = tab;
@@ -144,12 +105,8 @@ export default function Portfolio() {
 
   const showCategory = (category: ImageCategory) => {
     if (category === categoryRef.current) return;
-    const reduced = prefersReducedMotion();
-    setLeavingCategory(reduced ? null : categoryRef.current);
-    setCategoryEntering(!reduced);
     categoryRef.current = category;
     setActiveCategory(category);
-    rememberCategory(category);
     prefetchImagesNow(previewSrcsFor(category));
   };
 
@@ -213,7 +170,11 @@ export default function Portfolio() {
           </div>
         ) : null}
 
-        <div className="portfolio-stage">
+        <div
+          className={`portfolio-stage ${
+            leavingMedia || mediaEntering ? `is-shifting shift-${mediaShift}` : ""
+          }`}
+        >
           <div
             className={`portfolio-pane ${
               leavingMedia === "Images" ? "is-leaving" : ""
@@ -221,26 +182,7 @@ export default function Portfolio() {
             hidden={media !== "Images" && leavingMedia !== "Images"}
             aria-hidden={media !== "Images"}
           >
-            <div className="portfolio-stage">
-              {imageCategories.map((category) => {
-                if (!visitedCategories.has(category)) return null;
-                const isActive = activeCategory === category;
-                const isLeaving = leavingCategory === category;
-                const hidden = !isActive && !isLeaving;
-                return (
-                  <div
-                    key={category}
-                    hidden={hidden}
-                    aria-hidden={hidden}
-                    className={`portfolio-pane ${isLeaving ? "is-leaving" : ""} ${
-                      isActive && categoryEntering ? "is-entering" : ""
-                    }`}
-                  >
-                    {imageGrids[category]()}
-                  </div>
-                );
-              })}
-            </div>
+            <CategoryMosaic category={activeCategory} />
           </div>
 
           {visitedVideos ? (
